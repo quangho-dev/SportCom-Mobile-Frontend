@@ -64,6 +64,8 @@ const SignUpScreen = ({ navigation }) => {
                   });
 
                   resetForm();
+                  // authCtx.authenticate(response.data);
+                  console.log("response.data:", response.data);
                 })
                 .catch((error) => {
                   if (

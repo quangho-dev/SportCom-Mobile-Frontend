@@ -5,16 +5,22 @@ import {
   Button,
   ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useContext, useState } from "react";
 import * as yup from "yup";
 import tw from "twrnc";
 import axios from "axios";
 import Toast from "react-native-toast-message";
 import CustomInput from "../components/CustomInput";
 import { Field, Formik } from "formik";
+import { AuthContext } from "../store/auth-context";
+import LoadingOverlay from "../components/ui/LoadingOverlay";
 const s = require("../style");
 
 const LogInScreen = ({ navigation }) => {
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+  const authCtx = useContext(AuthContext);
+
   const logInValidationSchema = yup.object().shape({
     email: yup
       .string()
@@ -25,6 +31,10 @@ const LogInScreen = ({ navigation }) => {
       .min(6, ({ min }) => `Mật khẩu phải có ít nhất ${min} ký tự`)
       .required("Mật khẩu không được để trống"),
   });
+
+  if (isAuthenticating) {
+    return <LoadingOverlay message="Đang đăng nhập..." />;
+  }
 
   return (
     <View style={tw`flex-1 items-center justify-center bg-white`}>
@@ -38,10 +48,8 @@ const LogInScreen = ({ navigation }) => {
           validationSchema={logInValidationSchema}
           onSubmit={(values, { setSubmitting, resetForm }) => {
             setTimeout(() => {
-              delete values.confirmPassword;
-
               axios
-                .post("http://192.168.225.211:3333/auth/signup", values, {
+                .post("http://192.168.225.211:3333/auth/signin", values, {
                   headers: {
                     "Content-Type": "application/json",
                   },
@@ -49,20 +57,19 @@ const LogInScreen = ({ navigation }) => {
                 .then((response) => {
                   Toast.show({
                     type: "success",
-                    text1: "Đăng ký tài khoản thành công!",
+                    text1: "Đăng nhập thành công!",
+                    visibilityTime: 2000,
                   });
 
-                  resetForm();
+                  authCtx.authenticate(response.data.access_token);
                 })
                 .catch((error) => {
-                  if (
-                    error.response.data.message ===
-                    "This account has already existed"
-                  ) {
+                  if (error.response.data.message === "Credentials incorrect") {
                     Toast.show({
                       type: "error",
-                      text1: "Email này đã được đăng ký",
+                      text1: "Tài khoản không đúng",
                     });
+
                     return;
                   }
 
@@ -71,6 +78,8 @@ const LogInScreen = ({ navigation }) => {
                     text1: "Xin lỗi, đã xảy ra lỗi :(",
                   });
                 });
+
+              setIsAuthenticating(false);
               setSubmitting(false);
             }, 400);
           }}
