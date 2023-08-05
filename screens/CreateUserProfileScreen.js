@@ -1,14 +1,13 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   Button,
   Image,
   TextInput,
   ScrollView,
 } from "react-native";
-import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../store/auth-context";
 import axios from "axios";
 import { BASE_URL } from "@env";
@@ -64,6 +63,7 @@ const CreateUserProfileScreen = ({ navigation }) => {
   const validationSchema = yup.object().shape({
     avatarImage: yup.mixed().required("Ảnh đại diện không được để trống"),
     username: yup.string().required("Tên người dùng không được để trống"),
+    gender: yup.string().required("Giới tính không được để trống"),
     dateOfBirth: yup
       .mixed()
       .required("Ngày tháng năm sinh không được để trống"),
@@ -83,6 +83,7 @@ const CreateUserProfileScreen = ({ navigation }) => {
           initialValues={{
             avatarImage: "",
             username: currentUser ? currentUser.username : "",
+            gender: "",
             dateOfBirth: null,
             level: "",
             yearsOfExp: "0",
@@ -100,6 +101,7 @@ const CreateUserProfileScreen = ({ navigation }) => {
                 name: "image.jpg",
               });
               formData.append("username", values.username);
+              formData.append("gender", values.gender);
               formData.append("dateOfBirth", values.dateOfBirth.toString());
               formData.append("level", values.level);
               formData.append("yearsOfExp", values.yearsOfExp);
@@ -224,6 +226,29 @@ const CreateUserProfileScreen = ({ navigation }) => {
                 {errors.username && touched.username && (
                   <Text style={{ fontSize: 14, color: "red" }}>
                     {errors.username}
+                  </Text>
+                )}
+              </View>
+
+              <View style={tw`mb-4`}>
+                <Text style={tw`mb-1`}>
+                  Giới tính: <Text style={{ color: "red" }}>( * )</Text>
+                </Text>
+
+                <Picker
+                  selectedValue={values.gender}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setFieldValue("gender", itemValue)
+                  }
+                  style={styles.textInput}
+                >
+                  <Picker.Item label="Nam" value="MALE" />
+                  <Picker.Item label="Nữ" value="FEMALE" />
+                </Picker>
+
+                {errors.gender && touched.gender && (
+                  <Text style={{ fontSize: 14, color: "red" }}>
+                    {errors.gender}
                   </Text>
                 )}
               </View>
