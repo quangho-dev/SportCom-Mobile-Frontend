@@ -13,6 +13,7 @@ import CustomInput from "../components/CustomInput";
 const s = require("../style");
 import axios from "axios";
 import Toast from "react-native-toast-message";
+import { BASE_URL } from "@env";
 
 const SignUpScreen = ({ navigation }) => {
   const signUpValidationSchema = yup.object().shape({
@@ -50,9 +51,8 @@ const SignUpScreen = ({ navigation }) => {
           onSubmit={(values, { setSubmitting, resetForm }) => {
             setTimeout(() => {
               delete values.confirmPassword;
-
               axios
-                .post("http://192.168.225.211:3333/auth/signup", values, {
+                .post(`${BASE_URL}/api/auth/signup`, values, {
                   headers: {
                     "Content-Type": "application/json",
                   },
@@ -62,7 +62,6 @@ const SignUpScreen = ({ navigation }) => {
                     type: "success",
                     text1: "Đăng ký tài khoản thành công!",
                   });
-
                   resetForm();
                   // authCtx.authenticate(response.data);
                   console.log("response.data:", response.data);
@@ -78,7 +77,6 @@ const SignUpScreen = ({ navigation }) => {
                     });
                     return;
                   }
-
                   Toast.show({
                     type: "error",
                     text1: "Xin lỗi, đã xảy ra lỗi :(",

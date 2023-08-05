@@ -12,6 +12,11 @@ import HomeScreen from "./screens/HomeScreen";
 import AppLoading from "expo-app-loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import IoniconsIcon from "react-native-vector-icons/Ionicons";
+import { store } from "./store";
+import { Provider } from "react-redux";
+import CreateUserProfileScreen from "./screens/CreateUserProfileScreen";
+import { useSelector } from "react-redux";
+import { selectProfile } from "./features/userProfileSlice";
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +53,13 @@ function AuthenticatedStack() {
         name="Home"
         component={HomeScreen}
       />
+      <Stack.Screen
+        name="CreateUserProfile"
+        component={CreateUserProfileScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -57,8 +69,10 @@ function Navigation() {
 
   return (
     <NavigationContainer>
-      {!authCtx.isAuthenticated && <AuthStack />}
-      {authCtx.isAuthenticated && <AuthenticatedStack />}
+      <Provider store={store}>
+        {!authCtx.isAuthenticated && <AuthStack />}
+        {authCtx.isAuthenticated && <AuthenticatedStack />}
+      </Provider>
     </NavigationContainer>
   );
 }

@@ -49,7 +49,7 @@ const LogInScreen = ({ navigation }) => {
           onSubmit={(values, { setSubmitting, resetForm }) => {
             setTimeout(() => {
               axios
-                .post("http://192.168.225.211:3333/auth/signin", values, {
+                .post(`http://192.168.127.211:3333/api/auth/signin`, values, {
                   headers: {
                     "Content-Type": "application/json",
                   },
@@ -64,7 +64,10 @@ const LogInScreen = ({ navigation }) => {
                   authCtx.authenticate(response.data.access_token);
                 })
                 .catch((error) => {
-                  if (error.response.data.message === "Credentials incorrect") {
+                  console.log("error:", error);
+                  if (
+                    error.response?.data?.message === "Credentials incorrect"
+                  ) {
                     Toast.show({
                       type: "error",
                       text1: "Tài khoản không đúng",
