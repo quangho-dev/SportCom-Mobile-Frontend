@@ -1,9 +1,9 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AppFrontScreen from "./screens/AppFrontScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import LogInScreen from "./screens/LogInScreen";
-import { SafeAreaView, StatusBar } from "react-native";
+import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 import tw from "twrnc";
 import Toast from "react-native-toast-message";
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
@@ -11,12 +11,18 @@ import { useContext, useEffect, useState } from "react";
 import HomeScreen from "./screens/HomeScreen";
 import AppLoading from "expo-app-loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import IoniconsIcon from "react-native-vector-icons/Ionicons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { store } from "./store";
 import { Provider } from "react-redux";
 import CreateUserProfileScreen from "./screens/CreateUserProfileScreen";
 import { useSelector } from "react-redux";
 import { selectProfile } from "./features/userProfileSlice";
+import BottomTabs from "./navigation/bottomTabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import ProfileScreen from "./screens/ProfileScreen";
+import s from "./style";
+
+const Tab = createBottomTabNavigator();
 
 const Stack = createNativeStackNavigator();
 
@@ -35,24 +41,53 @@ function AuthStack() {
   );
 }
 
-function AuthenticatedStack() {
+function HomeBottomTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route, navigation }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === "Home") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Profile") {
+            iconName = focused ? "ios-list" : "ios-list-outline";
+          }
+
+          // You can return any component that you like here!
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: s.colors.primary,
+        tabBarInactiveTintColor: "gray",
+      })}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={() => {
+          return {
+            headerShown: true,
+          };
+        }}
+      />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+}
+
+function AuthenticatedRootStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        screenOptions={{
-          headerRight: ({ tintColor }) => (
-            <IoniconsIcon.Button
-              name="exit"
-              size="12"
-              backgroundColor="#3b5998"
-            >
-              Thoát
-            </IoniconsIcon.Button>
-          ),
+        name="HomeBottomTabs"
+        component={HomeBottomTabs}
+        options={{
+          headerShown: false,
         }}
-        name="Home"
-        component={HomeScreen}
       />
+
       <Stack.Screen
         name="CreateUserProfile"
         component={CreateUserProfileScreen}
@@ -71,7 +106,7 @@ function Navigation() {
     <NavigationContainer>
       <Provider store={store}>
         {!authCtx.isAuthenticated && <AuthStack />}
-        {authCtx.isAuthenticated && <AuthenticatedStack />}
+        {authCtx.isAuthenticated && <AuthenticatedRootStack />}
       </Provider>
     </NavigationContainer>
   );
@@ -116,3 +151,16 @@ export default function App() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  shadow: {
+    shadowColor: "#7F5DF0",
+    shadowOffSet: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    elevation: 5,
+  },
+});
