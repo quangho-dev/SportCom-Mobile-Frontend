@@ -15,6 +15,7 @@ import { Field, Formik } from "formik";
 import { AuthContext } from "../store/auth-context";
 import LoadingOverlay from "../components/ui/LoadingOverlay";
 const s = require("../style");
+import { BASE_URL } from "@env";
 
 const LogInScreen = ({ navigation }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -49,7 +50,7 @@ const LogInScreen = ({ navigation }) => {
           onSubmit={(values, { setSubmitting, resetForm }) => {
             setTimeout(() => {
               axios
-                .post(`http://192.168.127.211:3333/api/auth/signin`, values, {
+                .post(`${BASE_URL}/api/auth/signin`, values, {
                   headers: {
                     "Content-Type": "application/json",
                   },

@@ -3,7 +3,14 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AppFrontScreen from "./screens/AppFrontScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import LogInScreen from "./screens/LogInScreen";
-import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import {
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import tw from "twrnc";
 import Toast from "react-native-toast-message";
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
@@ -12,15 +19,14 @@ import HomeScreen from "./screens/HomeScreen";
 import AppLoading from "expo-app-loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { store } from "./store";
 import { Provider } from "react-redux";
 import CreateUserProfileScreen from "./screens/CreateUserProfileScreen";
-import { useSelector } from "react-redux";
-import { selectProfile } from "./features/userProfileSlice";
-import BottomTabs from "./navigation/bottomTabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ProfileScreen from "./screens/ProfileScreen";
 import s from "./style";
+import UserProfileScreen from "./screens/UserProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -95,6 +101,28 @@ function AuthenticatedRootStack() {
           headerShown: false,
         }}
       />
+
+      <Stack.Screen
+        name="UserProfile"
+        component={UserProfileScreen}
+        options={{
+          title: "Thông tin người dùng",
+          headerStyle: {
+            backgroundColor: s.colors.primary,
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+          headerTitleAlign: "center",
+          headerRight: () => (
+            <TouchableOpacity style={tw`flex-row items-center content-center`}>
+              <FontAwesome5 name="user-edit" color="#fff" size={25} />
+            </TouchableOpacity>
+          ),
+          headerShadowVisible: false,
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -151,16 +179,3 @@ export default function App() {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: "#7F5DF0",
-    shadowOffSet: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    elevation: 5,
-  },
-});

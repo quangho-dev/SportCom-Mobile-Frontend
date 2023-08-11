@@ -11,9 +11,16 @@ const HomeScreenHeaderTitle = ({
     <View style={tw`flex-1 flex-row items-center px-1 min-h-full`}>
       {currentUserProfile && (
         <View>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("UserProfile", {
+                currentUser,
+                currentUserProfile,
+              });
+            }}
+          >
             <Image
-              style={tw`rounded-full h-12 w-12 mr-2`}
+              style={tw`rounded-full h-11 w-11 mr-2`}
               source={{
                 uri: currentUserProfile.avatarImageUrl,
               }}
