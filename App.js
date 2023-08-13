@@ -19,7 +19,6 @@ import HomeScreen from "./screens/HomeScreen";
 import AppLoading from "expo-app-loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { store } from "./store";
 import { Provider } from "react-redux";
 import CreateUserProfileScreen from "./screens/CreateUserProfileScreen";
@@ -27,6 +26,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ProfileScreen from "./screens/ProfileScreen";
 import s from "./style";
 import UserProfileScreen from "./screens/UserProfileScreen";
+import EditUserProfileScreen from "./screens/EditUserProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -102,27 +102,14 @@ function AuthenticatedRootStack() {
         }}
       />
 
-      <Stack.Screen
-        name="UserProfile"
-        component={UserProfileScreen}
-        options={{
-          title: "Thông tin người dùng",
-          headerStyle: {
-            backgroundColor: s.colors.primary,
-          },
-          headerTintColor: "#fff",
-          headerTitleStyle: {
-            fontWeight: "bold",
-          },
-          headerTitleAlign: "center",
-          headerRight: () => (
-            <TouchableOpacity style={tw`flex-row items-center content-center`}>
-              <FontAwesome5 name="user-edit" color="#fff" size={25} />
-            </TouchableOpacity>
-          ),
-          headerShadowVisible: false,
-        }}
-      />
+      <Stack.Screen name="UserProfile" component={UserProfileScreen} />
+
+      <Stack.Group screenOptions={{ presentation: "modal" }}>
+        <Stack.Screen
+          name="EditUserProfile"
+          component={EditUserProfileScreen}
+        />
+      </Stack.Group>
     </Stack.Navigator>
   );
 }

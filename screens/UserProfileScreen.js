@@ -4,11 +4,40 @@ import tw from "twrnc";
 import s from "../style";
 import { format } from "date-fns";
 import displayLevel from "../utils/displayLevel";
+import { useLayoutEffect } from "react";
+import { TouchableOpacity } from "react-native";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 const UserProfileScreen = ({ navigation, route }) => {
   const { currentUser, currentUserProfile } = route.params;
-  console.log("currentUserProfile:", currentUserProfile);
-  console.log("currentUser:", currentUser);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: "Thông tin người dùng",
+      headerStyle: {
+        backgroundColor: s.colors.primary,
+      },
+      headerTintColor: "#fff",
+      headerTitleStyle: {
+        fontWeight: "bold",
+      },
+      headerTitleAlign: "center",
+      headerRight: () => (
+        <TouchableOpacity
+          style={tw`flex-row items-center content-center`}
+          onPress={() => {
+            navigation.navigate("EditUserProfile", {
+              currentUser,
+              currentUserProfile,
+            });
+          }}
+        >
+          <FontAwesome5 name="user-edit" color="#fff" size={25} />
+        </TouchableOpacity>
+      ),
+      headerShadowVisible: false,
+    });
+  }, [navigation]);
 
   return (
     <>
