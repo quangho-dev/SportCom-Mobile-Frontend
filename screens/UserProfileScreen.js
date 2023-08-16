@@ -7,9 +7,11 @@ import displayLevel from "../utils/displayLevel";
 import { useLayoutEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import { useSelector } from "react-redux";
 
 const UserProfileScreen = ({ navigation, route }) => {
-  const { currentUser, currentUserProfile } = route.params;
+  const { user } = useSelector((store) => store.user);
+  const { userProfile } = useSelector((store) => store.userProfile);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -26,10 +28,7 @@ const UserProfileScreen = ({ navigation, route }) => {
         <TouchableOpacity
           style={tw`flex-row items-center content-center`}
           onPress={() => {
-            navigation.navigate("EditUserProfile", {
-              currentUser,
-              currentUserProfile,
-            });
+            navigation.navigate("EditUserProfile");
           }}
         >
           <FontAwesome5 name="user-edit" color="#fff" size={25} />
@@ -43,7 +42,7 @@ const UserProfileScreen = ({ navigation, route }) => {
     <>
       <View style={tw`px-4 bg-[${s.colors.primary}] py-5`}>
         <Image
-          source={{ uri: currentUserProfile.avatarImageUrl }}
+          source={{ uri: userProfile.avatarImageUrl }}
           style={tw`rounded-full w-35 h-35 my-3 self-center`}
         />
       </View>
@@ -51,54 +50,48 @@ const UserProfileScreen = ({ navigation, route }) => {
       <ScrollView style={tw`p-5`}>
         <View style={tw`mb-5`}>
           <Text style={tw`text-slate-500`}>Tên người dùng:</Text>
-          <Text style={tw`text-lg`}>{currentUser.username}</Text>
+          <Text style={tw`text-lg`}>{user.username}</Text>
         </View>
 
         <View style={tw`mb-5`}>
           <Text style={tw`text-slate-500`}>Email:</Text>
-          <Text style={tw`text-lg`}>{currentUser.email}</Text>
+          <Text style={tw`text-lg`}>{user.email}</Text>
         </View>
 
         <View style={tw`mb-5`}>
           <Text style={tw`text-slate-500`}>Số điện thoại:</Text>
-          <Text style={tw`text-lg`}>{currentUser.phoneNumber}</Text>
+          <Text style={tw`text-lg`}>{user.phoneNumber}</Text>
         </View>
 
         <View style={tw`mb-5`}>
           <Text style={tw`text-slate-500`}>Số Zalo:</Text>
           <Text style={tw`text-lg`}>
-            {!currentUserProfile.zaloNumber
-              ? "Chưa có"
-              : currentUserProfile.zaloNumber}
+            {!userProfile.zaloNumber ? "Chưa có" : userProfile.zaloNumber}
           </Text>
         </View>
 
         <View style={tw`mb-5`}>
           <Text style={tw`text-slate-500`}>Giới tính:</Text>
           <Text style={tw`text-lg`}>
-            {currentUserProfile.gender === "MALE" ? "Nam" : "Nữ"}
+            {userProfile.gender === "MALE" ? "Nam" : "Nữ"}
           </Text>
         </View>
 
         <View style={tw`mb-5`}>
           <Text style={tw`text-slate-500`}>Ngày tháng năm sinh:</Text>
           <Text style={tw`text-lg`}>
-            {format(new Date(currentUserProfile.dateOfBirth), "dd/MM/yyyy")}
+            {format(new Date(userProfile.dateOfBirth), "dd/MM/yyyy")}
           </Text>
         </View>
 
         <View style={tw`mb-5`}>
           <Text style={tw`text-slate-500`}>Trình độ chơi cầu lông:</Text>
-          <Text style={tw`text-lg`}>
-            {displayLevel(currentUserProfile.level)}
-          </Text>
+          <Text style={tw`text-lg`}>{displayLevel(userProfile.level)}</Text>
         </View>
 
         <View style={tw`mb-5 pb-6`}>
           <Text style={tw`text-slate-500`}>Thời gian chơi cầu lông:</Text>
-          <Text style={tw`text-lg`}>
-            {`${currentUserProfile.yearsOfExp} năm`}
-          </Text>
+          <Text style={tw`text-lg`}>{`${userProfile.yearsOfExp} năm`}</Text>
         </View>
       </ScrollView>
     </>

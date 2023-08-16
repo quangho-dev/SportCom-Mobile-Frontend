@@ -24,11 +24,18 @@ import { AuthContext } from "../store/auth-context";
 import Toast from "react-native-toast-message";
 import { BASE_URL } from "@env";
 import Spinner from "react-native-loading-spinner-overlay";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../features/user/userSlice";
+import { setUserProfile } from "../features/userProfile/userProfileSlice";
 
 const EditUserProfileScreen = ({ navigation, route }) => {
   const [isPickerShow, setIsPickerShow] = useState(false);
 
-  const { currentUser, currentUserProfile } = route.params;
+  const { user } = useSelector((store) => store.user);
+  const { userProfile } = useSelector((store) => store.userProfile);
+
+  const dispatch = useDispatch();
+
   const authCtx = useContext(AuthContext);
 
   const showConfirmDialog = () => {
@@ -111,22 +118,16 @@ const EditUserProfileScreen = ({ navigation, route }) => {
   return (
     <Formik
       initialValues={{
-        avatarImage: currentUserProfile.avatarImageUrl
-          ? currentUserProfile.avatarImageUrl
+        avatarImage: userProfile.avatarImageUrl
+          ? userProfile.avatarImageUrl
           : "",
-        username: currentUser ? currentUser.username : "",
-        gender: currentUserProfile.gender ? currentUserProfile.gender : "",
-        dateOfBirth: currentUserProfile.dateOfBirth
-          ? currentUserProfile.dateOfBirth
-          : null,
-        level: currentUserProfile.level ? currentUserProfile.level : "",
-        yearsOfExp: currentUserProfile.yearsOfExp
-          ? currentUserProfile.yearsOfExp
-          : "0",
-        zaloNumber: currentUserProfile.zaloNumber
-          ? currentUserProfile.zaloNumber
-          : "",
-        phoneNumber: currentUser.phoneNumber ? currentUser.phoneNumber : "",
+        username: user ? user.username : "",
+        gender: userProfile.gender ? userProfile.gender : "",
+        dateOfBirth: userProfile.dateOfBirth ? userProfile.dateOfBirth : null,
+        level: userProfile.level ? userProfile.level : "",
+        yearsOfExp: userProfile.yearsOfExp ? userProfile.yearsOfExp : "0",
+        zaloNumber: userProfile.zaloNumber ? userProfile.zaloNumber : "",
+        phoneNumber: user.phoneNumber ? user.phoneNumber : "",
       }}
       enableReinitialize={true}
       validationSchema={validationSchema}
@@ -134,26 +135,14 @@ const EditUserProfileScreen = ({ navigation, route }) => {
         setTimeout(async () => {
           const formData = new FormData();
 
-          if (values.avatarImage !== currentUserProfile.avatarImageUrl) {
-            console.log(
-              "values.avatarImage !== currentUserProfile.avatarImageUrl:",
-              values.avatarImage !== currentUserProfile.avatarImageUrl
-            );
-            console.log(
-              "currentUserProfile.avatarImageUrl:",
-              currentUserProfile.avatarImageUrl
-            );
-            console.log("values.avatarImage:", values.avatarImage);
+          if (values.avatarImage !== userProfile.avatarImageUrl) {
             formData.append("avatarImage", {
               uri: values.avatarImage,
               type: "image/jpg",
               name: "image.jpg",
             });
           } else {
-            formData.append(
-              "avatarImageUrl",
-              currentUserProfile.avatarImageUrl
-            );
+            formData.append("avatarImageUrl", userProfile.avatarImageUrl);
           }
 
           formData.append("username", values.username);
@@ -198,6 +187,21 @@ const EditUserProfileScreen = ({ navigation, route }) => {
           try {
             const response = await axiosInstance.request(config);
 
+            const { username, phoneNumber, email } = response.data;
+            dispatch(
+              setUser({
+                email,
+                username,
+                phoneNumber,
+              })
+            );
+
+            delete response.data.username;
+            delete response.data.phoneNumber;
+            delete response.data.email;
+
+            dispatch(setUserProfile(response.data));
+
             Toast.show({
               type: "success",
               text1: "Tạo thông tin cá nhân thành công!",
@@ -205,14 +209,7 @@ const EditUserProfileScreen = ({ navigation, route }) => {
 
             setSubmitting(false);
 
-            navigation.navigate("UserProfile", {
-              currentUser: {
-                email: currentUser.email,
-                username: values.username,
-                phoneNumber: values.phoneNumber,
-              },
-              currentUserProfile: response.data,
-            });
+            navigation.navigate("UserProfile");
           } catch (error) {
             console.log("error:", error);
             Toast.show({

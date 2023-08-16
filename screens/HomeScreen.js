@@ -10,10 +10,18 @@ import tw from "twrnc";
 import { StyleSheet } from "react-native";
 import NewestMeet from "../components/NewestMeet";
 import NewestTeam from "../components/NewestTeam";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser } from "../features/user/userSlice";
+import { getUserProfile } from "../features/userProfile/userProfileSlice";
 
 const HomeScreen = ({ navigation }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
+
+  const dispatch = useDispatch();
+
+  const { user } = useSelector((store) => store.user);
+  const { userProfile } = useSelector((store) => store.userProfile);
 
   const authCtx = useContext(AuthContext);
 
@@ -39,57 +47,65 @@ const HomeScreen = ({ navigation }) => {
     });
   }, [navigation, currentUser, currentUserProfile]);
 
+  // useEffect(() => {
+  //   const fetchCurrentUserProfile = async () => {
+  //     try {
+  //       const res = await axios.get(`${BASE_URL}/api/user-profiles/me`, {
+  //         headers: { Authorization: `Bearer ${authCtx.token}` },
+  //       });
+
+  //       if (!res) {
+  //         navigation.navigate("CreateUserProfile");
+  //         return;
+  //       }
+
+  //       setCurrentUserProfile(res.data);
+  //     } catch (error) {
+  //       if (
+  //         error &&
+  //         error.response &&
+  //         error.response.data &&
+  //         error.response.data.statusCode === 404
+  //       ) {
+  //         navigation.navigate("CreateUserProfile");
+  //         return;
+  //       }
+
+  //       if (
+  //         error &&
+  //         error.response &&
+  //         error.response.data &&
+  //         error.response.data.statusCode === 401
+  //       ) {
+  //         navigation.navigate("LogIn");
+  //         return;
+  //       }
+  //     }
+  //   };
+
+  //   fetchCurrentUserProfile();
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchCurrentUser = async () => {
+  //     const res = await axios.get(`${BASE_URL}/api/auth/me`, {
+  //       headers: {
+  //         Authorization: `Bearer ${authCtx.token}`,
+  //       },
+  //     });
+
+  //     setCurrentUser(res.data);
+  //   };
+
+  //   fetchCurrentUser();
+  // }, []);
+
   useEffect(() => {
-    const fetchCurrentUserProfile = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/user-profiles/me`, {
-          headers: { Authorization: `Bearer ${authCtx.token}` },
-        });
-
-        if (!res) {
-          navigation.navigate("CreateUserProfile");
-          return;
-        }
-
-        setCurrentUserProfile(res.data);
-      } catch (error) {
-        if (
-          error &&
-          error.response &&
-          error.response.data &&
-          error.response.data.statusCode === 404
-        ) {
-          navigation.navigate("CreateUserProfile");
-          return;
-        }
-
-        if (
-          error &&
-          error.response &&
-          error.response.data &&
-          error.response.data.statusCode === 401
-        ) {
-          navigation.navigate("LogIn");
-          return;
-        }
-      }
-    };
-
-    fetchCurrentUserProfile();
+    dispatch(getUserProfile(authCtx.token));
   }, []);
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      const res = await axios.get(`${BASE_URL}/api/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${authCtx.token}`,
-        },
-      });
-
-      setCurrentUser(res.data);
-    };
-
-    fetchCurrentUser();
+    dispatch(getCurrentUser(authCtx.token));
   }, []);
 
   return (
