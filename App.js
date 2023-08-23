@@ -19,14 +19,21 @@ import HomeScreen from "./screens/HomeScreen";
 import AppLoading from "expo-app-loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { store } from "./store";
-import { Provider } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import CreateUserProfileScreen from "./screens/CreateUserProfileScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ProfileScreen from "./screens/ProfileScreen";
 import s from "./style";
 import UserProfileScreen from "./screens/UserProfileScreen";
 import EditUserProfileScreen from "./screens/EditUserProfileScreen";
+import TeamScreen from "./screens/TeamScreen";
+import CreateTeamScreen from "./screens/CreateTeamScreen";
+import MeetingScreen from "./screens/MeetingScreen";
+import LoadingOverlay from "./components/ui/LoadingOverlay";
+import { getUserProfile } from "./features/userProfile/userProfileSlice";
+import { getCurrentUser } from "./features/user/userSlice";
 
 const Tab = createBottomTabNavigator();
 
@@ -53,15 +60,31 @@ function HomeBottomTabs() {
       screenOptions={({ route, navigation }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
+          let icon;
 
           if (route.name === "Home") {
             iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Team") {
+            iconName = "team";
+            icon = <AntDesign name={iconName} size={size} color={color} />;
+            return icon;
           } else if (route.name === "Profile") {
             iconName = focused ? "ios-list" : "ios-list-outline";
+          } else if (route.name === "Meeting") {
+            iconName = "badminton";
+            icon = (
+              <MaterialCommunityIcons
+                name={iconName}
+                size={size}
+                color={color}
+              />
+            );
+            return icon;
           }
-
           // You can return any component that you like here!
-          return <Ionicons name={iconName} size={size} color={color} />;
+          icon = <Ionicons name={iconName} size={size} color={color} />;
+
+          return icon;
         },
         headerShown: false,
         tabBarShowLabel: false,
@@ -78,12 +101,51 @@ function HomeBottomTabs() {
           };
         }}
       />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen
+        name="Meeting"
+        component={MeetingScreen}
+        options={() => {
+          return {
+            headerShown: true,
+            title: "Buổi chơi",
+          };
+        }}
+      />
+
+      <Tab.Screen
+        name="Team"
+        component={TeamScreen}
+        options={() => {
+          return {
+            headerShown: true,
+            title: "Câu lạc bộ",
+          };
+        }}
+      />
     </Tab.Navigator>
   );
 }
 
 function AuthenticatedRootStack() {
+  const authCtx = useContext(AuthContext);
+
+  const dispatch = useDispatch();
+
+  const { isLoadingoading: isUserLoading } = useSelector((store) => store.user);
+
+  const { isLoading: isUserProfileLoading } = useSelector(
+    (store) => store.userProfile
+  );
+
+  useEffect(() => {
+    dispatch(getCurrentUser(authCtx.token));
+    dispatch(getUserProfile(authCtx.token));
+  }, []);
+
+  if (isUserLoading || isUserProfileLoading) {
+    return <LoadingOverlay message="Loading..." />;
+  }
+
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -102,6 +164,15 @@ function AuthenticatedRootStack() {
         }}
       />
 
+      <Stack.Screen
+        name="CreateTeam"
+        component={CreateTeamScreen}
+        options={{
+          headerShown: true,
+          title: "Tạo câu lạc bộ",
+        }}
+      />
+
       <Stack.Screen name="UserProfile" component={UserProfileScreen} />
 
       <Stack.Group screenOptions={{ presentation: "modal" }}>
@@ -116,6 +187,7 @@ function AuthenticatedRootStack() {
 
 function Navigation() {
   const authCtx = useContext(AuthContext);
+  console.log("authCtx:", authCtx);
 
   return (
     <NavigationContainer>

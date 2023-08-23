@@ -8,6 +8,7 @@ import { useLayoutEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useSelector } from "react-redux";
+import UserAvatar from "react-native-user-avatar";
 
 const UserProfileScreen = ({ navigation, route }) => {
   const { user } = useSelector((store) => store.user);
@@ -41,17 +42,28 @@ const UserProfileScreen = ({ navigation, route }) => {
   return (
     <>
       <View style={tw`px-4 bg-[${s.colors.primary}] py-5`}>
-        <Image
-          source={{ uri: userProfile.avatarImageUrl }}
-          style={tw`rounded-full w-35 h-35 my-3 self-center`}
-        />
+        {userProfile && userProfile.avatarImageUrl ? (
+          <Image
+            source={{ uri: userProfile.avatarImageUrl }}
+            style={tw`rounded-full w-35 h-35 my-3 self-center`}
+          />
+        ) : user && user.username ? (
+          <View>
+            <UserAvatar
+              name={user.username}
+              style={tw`rounded-full w-35 h-35 my-3 self-center`}
+            />
+          </View>
+        ) : null}
       </View>
 
       <ScrollView style={tw`p-5`}>
-        <View style={tw`mb-5`}>
-          <Text style={tw`text-slate-500`}>Tên người dùng:</Text>
-          <Text style={tw`text-lg`}>{user.username}</Text>
-        </View>
+        {user && user.username && (
+          <View style={tw`mb-5`}>
+            <Text style={tw`text-slate-500`}>Tên người dùng:</Text>
+            <Text style={tw`text-lg`}>{user.username}</Text>
+          </View>
+        )}
 
         <View style={tw`mb-5`}>
           <Text style={tw`text-slate-500`}>Email:</Text>
@@ -63,36 +75,44 @@ const UserProfileScreen = ({ navigation, route }) => {
           <Text style={tw`text-lg`}>{user.phoneNumber}</Text>
         </View>
 
-        <View style={tw`mb-5`}>
-          <Text style={tw`text-slate-500`}>Số Zalo:</Text>
-          <Text style={tw`text-lg`}>
-            {!userProfile.zaloNumber ? "Chưa có" : userProfile.zaloNumber}
-          </Text>
-        </View>
+        {userProfile && userProfile.zaloNumber && (
+          <View style={tw`mb-5`}>
+            <Text style={tw`text-slate-500`}>Số Zalo:</Text>
+            <Text style={tw`text-lg`}>{userProfile.zaloNumber}</Text>
+          </View>
+        )}
 
-        <View style={tw`mb-5`}>
-          <Text style={tw`text-slate-500`}>Giới tính:</Text>
-          <Text style={tw`text-lg`}>
-            {userProfile.gender === "MALE" ? "Nam" : "Nữ"}
-          </Text>
-        </View>
+        {userProfile && userProfile.gender && (
+          <View style={tw`mb-5`}>
+            <Text style={tw`text-slate-500`}>Giới tính:</Text>
+            <Text style={tw`text-lg`}>
+              {userProfile.gender === "MALE" ? "Nam" : "Nữ"}
+            </Text>
+          </View>
+        )}
 
-        <View style={tw`mb-5`}>
-          <Text style={tw`text-slate-500`}>Ngày tháng năm sinh:</Text>
-          <Text style={tw`text-lg`}>
-            {format(new Date(userProfile.dateOfBirth), "dd/MM/yyyy")}
-          </Text>
-        </View>
+        {userProfile && userProfile.dateOfBirth && (
+          <View style={tw`mb-5`}>
+            <Text style={tw`text-slate-500`}>Ngày tháng năm sinh:</Text>
+            <Text style={tw`text-lg`}>
+              {format(new Date(userProfile.dateOfBirth), "dd/MM/yyyy")}
+            </Text>
+          </View>
+        )}
 
-        <View style={tw`mb-5`}>
-          <Text style={tw`text-slate-500`}>Trình độ chơi cầu lông:</Text>
-          <Text style={tw`text-lg`}>{displayLevel(userProfile.level)}</Text>
-        </View>
+        {userProfile && userProfile.level && (
+          <View style={tw`mb-5`}>
+            <Text style={tw`text-slate-500`}>Trình độ chơi cầu lông:</Text>
+            <Text style={tw`text-lg`}>{displayLevel(userProfile.level)}</Text>
+          </View>
+        )}
 
-        <View style={tw`mb-5 pb-6`}>
-          <Text style={tw`text-slate-500`}>Thời gian chơi cầu lông:</Text>
-          <Text style={tw`text-lg`}>{`${userProfile.yearsOfExp} năm`}</Text>
-        </View>
+        {userProfile && userProfile.yearsOfExp && (
+          <View style={tw`mb-5 pb-6`}>
+            <Text style={tw`text-slate-500`}>Thời gian chơi cầu lông:</Text>
+            <Text style={tw`text-lg`}>{`${userProfile.yearsOfExp} năm`}</Text>
+          </View>
+        )}
       </ScrollView>
     </>
   );

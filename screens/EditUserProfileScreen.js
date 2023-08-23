@@ -27,12 +27,19 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../features/user/userSlice";
 import { setUserProfile } from "../features/userProfile/userProfileSlice";
+import LoadingOverlay from "../components/ui/LoadingOverlay";
 
 const EditUserProfileScreen = ({ navigation, route }) => {
   const [isPickerShow, setIsPickerShow] = useState(false);
 
-  const { user } = useSelector((store) => store.user);
-  const { userProfile } = useSelector((store) => store.userProfile);
+  const { user, isLoading: isUserLoading } = useSelector((store) => store.user);
+  const { userProfile, isLoading: isUserProfileLoading } = useSelector(
+    (store) => store.userProfile
+  );
+
+  if (isUserLoading || isUserProfileLoading) {
+    return <LoadingOverlay message="Loading..." />;
+  }
 
   const dispatch = useDispatch();
 
@@ -118,15 +125,21 @@ const EditUserProfileScreen = ({ navigation, route }) => {
   return (
     <Formik
       initialValues={{
-        avatarImage: userProfile.avatarImageUrl
-          ? userProfile.avatarImageUrl
-          : "",
+        avatarImage:
+          userProfile && userProfile.avatarImageUrl
+            ? userProfile.avatarImageUrl
+            : "",
         username: user ? user.username : "",
-        gender: userProfile.gender ? userProfile.gender : "",
-        dateOfBirth: userProfile.dateOfBirth ? userProfile.dateOfBirth : null,
-        level: userProfile.level ? userProfile.level : "",
-        yearsOfExp: userProfile.yearsOfExp ? userProfile.yearsOfExp : "0",
-        zaloNumber: userProfile.zaloNumber ? userProfile.zaloNumber : "",
+        gender: userProfile && userProfile.gender ? userProfile.gender : "",
+        dateOfBirth:
+          userProfile && userProfile.dateOfBirth
+            ? userProfile.dateOfBirth
+            : null,
+        level: userProfile && userProfile.level ? userProfile.level : "",
+        yearsOfExp:
+          userProfile && userProfile.yearsOfExp ? userProfile.yearsOfExp : "0",
+        zaloNumber:
+          userProfile && userProfile.zaloNumber ? userProfile.zaloNumber : "",
         phoneNumber: user.phoneNumber ? user.phoneNumber : "",
       }}
       enableReinitialize={true}
@@ -135,15 +148,11 @@ const EditUserProfileScreen = ({ navigation, route }) => {
         setTimeout(async () => {
           const formData = new FormData();
 
-          if (values.avatarImage !== userProfile.avatarImageUrl) {
-            formData.append("avatarImage", {
-              uri: values.avatarImage,
-              type: "image/jpg",
-              name: "image.jpg",
-            });
-          } else {
-            formData.append("avatarImageUrl", userProfile.avatarImageUrl);
-          }
+          formData.append("avatarImage", {
+            uri: values.avatarImage,
+            type: "image/jpg",
+            name: "image.jpg",
+          });
 
           formData.append("username", values.username);
           formData.append("gender", values.gender);
@@ -245,7 +254,7 @@ const EditUserProfileScreen = ({ navigation, route }) => {
               ) : (
                 <Image
                   source={require("../assets/blank-profile-picture.png")}
-                  style={tw`rounded-full w-30 h-30 mb-3`}
+                  style={tw`rounded-full w-35 h-35 my-3 self-center`}
                 />
               )}
 
