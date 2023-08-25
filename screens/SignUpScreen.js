@@ -11,11 +11,12 @@ import tw from "twrnc";
 import * as yup from "yup";
 import CustomInput from "../components/CustomInput";
 const s = require("../style");
-import axios from "axios";
-import Toast from "react-native-toast-message";
-import { BASE_URL } from "@env";
+import { useDispatch } from "react-redux";
+import { signupUser } from "../features/auth/authSlice";
 
 const SignUpScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   const signUpValidationSchema = yup.object().shape({
     username: yup.string().required("Tên người dùng không được để trống"),
     phoneNumber: yup.string().required("Số điện thoại không được để trống"),
@@ -51,37 +52,9 @@ const SignUpScreen = ({ navigation }) => {
           onSubmit={(values, { setSubmitting, resetForm }) => {
             setTimeout(() => {
               delete values.confirmPassword;
-              axios
-                .post(`${BASE_URL}/api/auth/signup`, values, {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                })
-                .then((response) => {
-                  Toast.show({
-                    type: "success",
-                    text1: "Đăng ký tài khoản thành công!",
-                  });
-                  resetForm();
-                  // authCtx.authenticate(response.data);
-                  console.log("response.data:", response.data);
-                })
-                .catch((error) => {
-                  if (
-                    error.response.data.message ===
-                    "This account has already existed"
-                  ) {
-                    Toast.show({
-                      type: "error",
-                      text1: "Email này đã được đăng ký",
-                    });
-                    return;
-                  }
-                  Toast.show({
-                    type: "error",
-                    text1: "Xin lỗi, đã xảy ra lỗi :(",
-                  });
-                });
+
+              dispatch(signupUser(values));
+
               setSubmitting(false);
             }, 400);
           }}

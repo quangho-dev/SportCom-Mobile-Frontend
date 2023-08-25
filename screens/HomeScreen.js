@@ -10,10 +10,9 @@ import tw from "twrnc";
 import { StyleSheet } from "react-native";
 import NewestMeet from "../components/NewestMeet";
 import NewestTeam from "../components/NewestTeam";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "../features/user/userSlice";
-import { getUserProfile } from "../features/userProfile/userProfileSlice";
+import { useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
+import { logout } from "../features/auth/authSlice";
 
 const HomeScreen = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -23,18 +22,11 @@ const HomeScreen = () => {
 
   const dispatch = useDispatch();
 
-  const { user } = useSelector((store) => store.user);
-  console.log("user:", user);
-  const { userProfile } = useSelector((store) => store.userProfile);
-
-  const authCtx = useContext(AuthContext);
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
         <HomeScreenHeaderTitle
           navigation={navigation}
-          user={user}
           currentUserProfile={currentUserProfile}
         />
       ),
@@ -43,7 +35,7 @@ const HomeScreen = () => {
           <Button
             title="Out"
             onPress={() => {
-              authCtx.logout();
+              dispatch(logout());
             }}
           />
         </View>

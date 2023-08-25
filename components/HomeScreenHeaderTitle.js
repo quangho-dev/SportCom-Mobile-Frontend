@@ -1,19 +1,11 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import tw from "twrnc";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import UserAvatar from "react-native-user-avatar";
-import LoadingOverlay from "./ui/LoadingOverlay";
-import { getCurrentUser } from "../features/user/userSlice";
-import { getUserProfile } from "../features/userProfile/userProfileSlice";
-import { AuthContext } from "../store/auth-context";
 
-const HomeScreenHeaderTitle = ({ navigation, user, userProfile }) => {
-  console.log("user:", user);
-
-  const dispatch = useDispatch();
-
-  const authCtx = useContext(AuthContext);
+const HomeScreenHeaderTitle = ({ navigation, userProfile }) => {
+  const user = useSelector((state) => state.user.user);
 
   return (
     <View style={tw`flex-1 flex-row items-center px-1 min-h-full`}>

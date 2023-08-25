@@ -10,7 +10,7 @@ const initialState = {
 };
 
 export const getUserProfile = createAsyncThunk(
-  "user/getUserProfile",
+  "userProfile/getUserProfile",
   async (token, thunkAPI) => {
     try {
       const resp = await axios(url, {

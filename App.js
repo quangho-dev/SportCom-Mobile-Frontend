@@ -34,6 +34,8 @@ import MeetingScreen from "./screens/MeetingScreen";
 import LoadingOverlay from "./components/ui/LoadingOverlay";
 import { getUserProfile } from "./features/userProfile/userProfileSlice";
 import { getCurrentUser } from "./features/user/userSlice";
+import { addToken } from "./features/auth/authSlice";
+import TextScreen from "./screens/TextScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -137,14 +139,14 @@ function AuthenticatedRootStack() {
     (store) => store.userProfile
   );
 
-  useEffect(() => {
-    dispatch(getCurrentUser(authCtx.token));
-    dispatch(getUserProfile(authCtx.token));
-  }, []);
+  // useEffect(() => {
+  //   dispatch(getCurrentUser(authCtx.token));
+  //   dispatch(getUserProfile(authCtx.token));
+  // }, []);
 
-  if (isUserLoading || isUserProfileLoading) {
-    return <LoadingOverlay message="Loading..." />;
-  }
+  // if (isUserLoading || isUserProfileLoading) {
+  //   return <LoadingOverlay message="Loading..." />;
+  // }
 
   return (
     <Stack.Navigator>
@@ -225,16 +227,41 @@ function Root() {
   return <Navigation />;
 }
 
-export default function App() {
+export function App() {
+  const { token, isLoading } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(addToken());
+
+    if (token) {
+      dispatch(getCurrentUser(token));
+      dispatch(getUserProfile(token));
+    }
+  }, [token]);
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
+
   return (
     <>
       <StatusBar style="light" />
-      <AuthContextProvider>
+      <NavigationContainer>
         <SafeAreaView style={tw`flex-1`}>
-          <Root />
+          {token ? <AuthenticatedRootStack /> : <AuthStack />}
           <Toast />
         </SafeAreaView>
-      </AuthContextProvider>
+      </NavigationContainer>
     </>
   );
 }
+
+export default () => {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+};

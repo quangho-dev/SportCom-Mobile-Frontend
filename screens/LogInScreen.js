@@ -8,19 +8,17 @@ import {
 import React, { useContext, useState } from "react";
 import * as yup from "yup";
 import tw from "twrnc";
-import axios from "axios";
-import Toast from "react-native-toast-message";
 import CustomInput from "../components/CustomInput";
 import { Field, Formik } from "formik";
-import { AuthContext } from "../store/auth-context";
 import LoadingOverlay from "../components/ui/LoadingOverlay";
 const s = require("../style");
-import { BASE_URL } from "@env";
+import { useDispatch } from "react-redux";
+import { signinUser } from "../features/auth/authSlice";
 
 const LogInScreen = ({ navigation }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
 
   const logInValidationSchema = yup.object().shape({
     email: yup
@@ -47,41 +45,9 @@ const LogInScreen = ({ navigation }) => {
             password: "",
           }}
           validationSchema={logInValidationSchema}
-          onSubmit={(values, { setSubmitting, resetForm }) => {
+          onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
-              axios
-                .post(`${BASE_URL}/api/auth/signin`, values, {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                })
-                .then((response) => {
-                  Toast.show({
-                    type: "success",
-                    text1: "Đăng nhập thành công!",
-                    visibilityTime: 2000,
-                  });
-
-                  authCtx.authenticate(response.data.access_token);
-                })
-                .catch((error) => {
-                  console.log("error:", error);
-                  if (
-                    error.response?.data?.message === "Credentials incorrect"
-                  ) {
-                    Toast.show({
-                      type: "error",
-                      text1: "Tài khoản không đúng",
-                    });
-
-                    return;
-                  }
-
-                  Toast.show({
-                    type: "error",
-                    text1: "Xin lỗi, đã xảy ra lỗi :(",
-                  });
-                });
+              dispatch(signinUser(values));
 
               setIsAuthenticating(false);
               setSubmitting(false);

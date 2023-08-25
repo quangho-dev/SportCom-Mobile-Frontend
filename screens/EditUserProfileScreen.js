@@ -33,17 +33,11 @@ const EditUserProfileScreen = ({ navigation, route }) => {
   const [isPickerShow, setIsPickerShow] = useState(false);
 
   const { user, isLoading: isUserLoading } = useSelector((store) => store.user);
+  const { token } = useSelector((store) => store.auth);
   const { userProfile, isLoading: isUserProfileLoading } = useSelector(
     (store) => store.userProfile
   );
-
-  if (isUserLoading || isUserProfileLoading) {
-    return <LoadingOverlay message="Loading..." />;
-  }
-
   const dispatch = useDispatch();
-
-  const authCtx = useContext(AuthContext);
 
   const showConfirmDialog = () => {
     return Alert.alert(
@@ -132,15 +126,13 @@ const EditUserProfileScreen = ({ navigation, route }) => {
         username: user ? user.username : "",
         gender: userProfile && userProfile.gender ? userProfile.gender : "",
         dateOfBirth:
-          userProfile && userProfile.dateOfBirth
-            ? userProfile.dateOfBirth
-            : null,
+          userProfile && userProfile.dateOfBirth ? userProfile.dateOfBirth : "",
         level: userProfile && userProfile.level ? userProfile.level : "",
         yearsOfExp:
           userProfile && userProfile.yearsOfExp ? userProfile.yearsOfExp : "0",
         zaloNumber:
           userProfile && userProfile.zaloNumber ? userProfile.zaloNumber : "",
-        phoneNumber: user.phoneNumber ? user.phoneNumber : "",
+        phoneNumber: user ? user.phoneNumber : "",
       }}
       enableReinitialize={true}
       validationSchema={validationSchema}
@@ -177,7 +169,7 @@ const EditUserProfileScreen = ({ navigation, route }) => {
             responseType: "json",
             headers: {
               "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${authCtx.token}`,
+              Authorization: `Bearer ${token}`,
               // if backend supports u can use gzip request encoding
               // "Content-Encoding": "gzip",
             },
@@ -314,6 +306,7 @@ const EditUserProfileScreen = ({ navigation, route }) => {
                 }
                 style={styles.textInput}
               >
+                <Picker.Item label="Chọn" value="" />
                 <Picker.Item label="Nam" value="MALE" />
                 <Picker.Item label="Nữ" value="FEMALE" />
               </Picker>
