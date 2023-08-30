@@ -3,13 +3,10 @@ import React from "react";
 import tw from "twrnc";
 import { Image } from "react-native";
 import { useState } from "react";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import { Formik } from "formik";
 import s from "../style";
 import * as ImagePicker from "expo-image-picker";
-import Video from "react-native-video";
 
 const CreateTeamScreen = () => {
   const [isPickerShow, setIsPickerShow] = useState(false);

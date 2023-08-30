@@ -35,7 +35,7 @@ import LoadingOverlay from "./components/ui/LoadingOverlay";
 import { getUserProfile } from "./features/userProfile/userProfileSlice";
 import { getCurrentUser } from "./features/user/userSlice";
 import { addToken } from "./features/auth/authSlice";
-import TextScreen from "./screens/TextScreen";
+import CreateMeeting from "./components/CreateMeeting";
 
 const Tab = createBottomTabNavigator();
 
@@ -89,7 +89,6 @@ function HomeBottomTabs() {
           return icon;
         },
         headerShown: false,
-        tabBarShowLabel: false,
         tabBarActiveTintColor: s.colors.primary,
         tabBarInactiveTintColor: "gray",
       })}
@@ -100,16 +99,18 @@ function HomeBottomTabs() {
         options={() => {
           return {
             headerShown: true,
+            tabBarLabel: "Trang chính",
           };
         }}
       />
+
       <Tab.Screen
         name="Meeting"
         component={MeetingScreen}
         options={() => {
           return {
             headerShown: true,
-            title: "Buổi chơi",
+            title: "Các buổi chơi",
           };
         }}
       />
@@ -129,25 +130,6 @@ function HomeBottomTabs() {
 }
 
 function AuthenticatedRootStack() {
-  const authCtx = useContext(AuthContext);
-
-  const dispatch = useDispatch();
-
-  const { isLoadingoading: isUserLoading } = useSelector((store) => store.user);
-
-  const { isLoading: isUserProfileLoading } = useSelector(
-    (store) => store.userProfile
-  );
-
-  // useEffect(() => {
-  //   dispatch(getCurrentUser(authCtx.token));
-  //   dispatch(getUserProfile(authCtx.token));
-  // }, []);
-
-  // if (isUserLoading || isUserProfileLoading) {
-  //   return <LoadingOverlay message="Loading..." />;
-  // }
-
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -163,6 +145,15 @@ function AuthenticatedRootStack() {
         component={CreateUserProfileScreen}
         options={{
           headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="CreateMeeting"
+        component={CreateMeeting}
+        options={{
+          headerShown: true,
+          title: "Tạo buổi chơi",
         }}
       />
 
