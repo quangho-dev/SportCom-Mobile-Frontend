@@ -7,6 +7,8 @@ import Toast from "react-native-toast-message";
 
 const initialState = {
   token: null,
+  access_token: "",
+  refresh_token: "",
   user: null,
   error: null,
   isLoading: false,

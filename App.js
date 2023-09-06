@@ -36,10 +36,63 @@ import { getUserProfile } from "./features/userProfile/userProfileSlice";
 import { getCurrentUser } from "./features/user/userSlice";
 import { addToken } from "./features/auth/authSlice";
 import CreateMeeting from "./components/CreateMeeting";
+import {
+  DrawerToggleButton,
+  createDrawerNavigator,
+} from "@react-navigation/drawer";
+import SearchMeetingsScreen from "./screens/SearchMeetingsScreen";
+import SearchMeetingsScreenV2 from "./screens/SearchMeetingsScreenV2";
 
 const Tab = createBottomTabNavigator();
 
 const Stack = createNativeStackNavigator();
+
+const Drawer = createDrawerNavigator();
+
+const MeetingDrawer = () => {
+  return (
+    <Drawer.Navigator
+      initialRouteName="Meeting"
+      screenOptions={{
+        drawerPosition: "right",
+        headerLeft: false,
+        headerRight: () => <DrawerToggleButton />,
+      }}
+    >
+      <Drawer.Screen
+        name="Meetings"
+        component={SearchMeetingsScreenV2}
+        options={() => {
+          return {
+            headerShown: true,
+            title: "Các buổi chơi",
+            drawerIcon: ({ focused, size }) => (
+              <MaterialCommunityIcons
+                name="badminton"
+                size={size}
+                color={s.colors.primary}
+              />
+            ),
+          };
+        }}
+      />
+
+      <Drawer.Screen
+        name="CreateMeeting"
+        component={CreateMeeting}
+        options={() => {
+          return {
+            headerShown: true,
+            title: "Tạo buổi chơi",
+            drawerIcon: ({ focused, size }) => (
+              <Ionicons name="add" size={size} color={s.colors.primary} />
+            ),
+          };
+        }}
+      />
+    </Drawer.Navigator>
+  );
+};
 
 function AuthStack() {
   return (
@@ -72,7 +125,7 @@ function HomeBottomTabs() {
             return icon;
           } else if (route.name === "Profile") {
             iconName = focused ? "ios-list" : "ios-list-outline";
-          } else if (route.name === "Meeting") {
+          } else if (route.name === "MeetingDrawer") {
             iconName = "badminton";
             icon = (
               <MaterialCommunityIcons
@@ -105,12 +158,11 @@ function HomeBottomTabs() {
       />
 
       <Tab.Screen
-        name="Meeting"
-        component={MeetingScreen}
+        name="MeetingDrawer"
+        component={MeetingDrawer}
         options={() => {
           return {
-            headerShown: true,
-            title: "Các buổi chơi",
+            tabBarLabel: "Buổi chơi",
           };
         }}
       />
@@ -158,6 +210,15 @@ function AuthenticatedRootStack() {
       />
 
       <Stack.Screen
+        name="SearchMeetingsHome"
+        component={SearchMeetingsScreenV2}
+        options={{
+          headerShown: true,
+          title: "Tìm các buổi chơi",
+        }}
+      />
+
+      <Stack.Screen
         name="CreateTeam"
         component={CreateTeamScreen}
         options={{
@@ -190,32 +251,6 @@ function Navigation() {
       </Provider>
     </NavigationContainer>
   );
-}
-
-function Root() {
-  const [isTryingLogin, setIsTryingLogin] = useState(true);
-
-  const authCtx = useContext(AuthContext);
-
-  useEffect(() => {
-    async function fetchToken() {
-      const storedToken = await AsyncStorage.getItem("token");
-
-      if (storedToken) {
-        authCtx.authenticate(storedToken);
-      }
-
-      setIsTryingLogin(false);
-    }
-
-    fetchToken();
-  }, []);
-
-  if (isTryingLogin) {
-    return <AppLoading />;
-  }
-
-  return <Navigation />;
 }
 
 export function App() {

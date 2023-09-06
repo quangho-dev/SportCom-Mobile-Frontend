@@ -462,7 +462,7 @@ const CreateMeeting = ({ navigation }) => {
             <View style={tw`mt-3 mb-10`}>
               <Button
                 color={s.colors.primary}
-                title="Submit"
+                title="Gửi"
                 onPress={handleSubmit}
                 disabled={!isValid}
               />

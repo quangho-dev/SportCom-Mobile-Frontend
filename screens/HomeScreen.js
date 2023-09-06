@@ -8,8 +8,6 @@ import HomeScreenHeaderTitle from "../components/HomeScreenHeaderTitle";
 import { useState } from "react";
 import tw from "twrnc";
 import { StyleSheet } from "react-native";
-import NewestMeet from "../components/NewestMeet";
-import NewestTeam from "../components/NewestTeam";
 import { useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { logout } from "../features/auth/authSlice";
@@ -43,6 +41,10 @@ const HomeScreen = () => {
     });
   }, [navigation, currentUser, currentUserProfile]);
 
+  const handlePressFindMeetings = () => {
+    navigation.navigate("SearchMeetingsHome");
+  };
+
   return (
     <ScrollView style={tw`px-4 flex-1`}>
       <View
@@ -51,7 +53,7 @@ const HomeScreen = () => {
           styles.shadow,
         ]}
       >
-        <TouchableOpacity style={tw`mr-2`}>
+        <TouchableOpacity style={tw`mr-2`} onPress={handlePressFindMeetings}>
           <Text>Tìm buổi chơi</Text>
         </TouchableOpacity>
 
@@ -65,19 +67,19 @@ const HomeScreen = () => {
       <View style={tw`mt-4`}>
         <Text style={tw`font-bold mb-2`}>Các buổi chơi mới nhất:</Text>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <NewestMeet />
-          <NewestMeet />
-        </ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        ></ScrollView>
       </View>
 
       <View style={tw`mt-4 pb-6`}>
         <Text style={tw`font-bold mb-2`}>Các câu lạc bộ mới nhất:</Text>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <NewestTeam />
-          <NewestTeam />
-        </ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        ></ScrollView>
       </View>
     </ScrollView>
   );

@@ -1,5 +1,5 @@
 function displayLevel(level) {
-  if (level === "WEAK") {
+  if (level === "NEWBIE") {
     return "Yếu";
   } else if (level === "MEDIUM") {
     return "Trung bình";

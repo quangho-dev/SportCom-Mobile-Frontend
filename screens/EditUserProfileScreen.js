@@ -19,15 +19,12 @@ import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import formatDate from "../utils/formatDate";
 import axios from "axios";
-import { useContext } from "react";
-import { AuthContext } from "../store/auth-context";
 import Toast from "react-native-toast-message";
 import { BASE_URL } from "@env";
 import Spinner from "react-native-loading-spinner-overlay";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../features/user/userSlice";
 import { setUserProfile } from "../features/userProfile/userProfileSlice";
-import LoadingOverlay from "../components/ui/LoadingOverlay";
 
 const EditUserProfileScreen = ({ navigation, route }) => {
   const [isPickerShow, setIsPickerShow] = useState(false);

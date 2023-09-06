@@ -1,55 +1,81 @@
-import { View, Text, TextInput, ScrollView, FlatList } from "react-native";
-import React, { useState } from "react";
+import { View, FlatList, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
 import tw from "twrnc";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { useLayoutEffect } from "react";
-import { TouchableOpacity } from "react-native";
-import NewestMeet from "../components/NewestMeet";
+import axios from "axios";
+import { BASE_URL } from "@env";
+import Meeting from "../components/Meeting";
+import { useSelector } from "react-redux";
+import { ActivityIndicator } from "react-native";
+import s from "../style";
 
 const MeetingScreen = ({ navigation }) => {
-  const [searchText, setSearchText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
+  const [currentSkip, setCurrentSkip] = useState(0);
+  const [take, setTake] = useState(5);
+  const [meetings, setMeetings] = useState([]);
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={tw`mr-3`}
-          onPress={() => {
-            navigation.navigate("CreateMeeting");
-          }}
-        >
-          <Ionicons name="add" size={35} />
-        </TouchableOpacity>
-      ),
-    });
-  }, []);
+  const { token } = useSelector((store) => store.auth);
 
-  const dummyList = [
-    { id: 1, component: <NewestMeet /> },
-    { id: 2, component: <NewestMeet /> },
-  ];
+  useEffect(() => {
+    getMeetings();
+  }, [currentSkip]);
+
+  const getMeetings = async () => {
+    setIsLoading(true);
+
+    const res = await axios.get(
+      `${BASE_URL}/api/meeting/pagination?skip=${currentSkip}&take=${take}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setMeetings([...meetings, ...res.data]);
+    setIsLoading(false);
+  };
+
+  const renderItem = ({ item }) => {
+    return <Meeting meeting={item} />;
+  };
+
+  const renderLoader = () => {
+    return isLoading ? (
+      <View style={styles.loaderStyle}>
+        <ActivityIndicator size="large" color={s.colors.primary} />
+      </View>
+    ) : null;
+  };
+
+  const loadMoreItem = () => {
+    setCurrentSkip(currentSkip + 5);
+  };
 
   return (
     <View>
-      <View
-        style={tw`flex-row py-3 px-4 self-center bg-[#fff] my-4 rounded-full items-center justify-center border-2 border-slate-700 mt-5`}
-      >
-        <AntDesign name="search1" size={20} style={tw`mr-2`} />
-        <TextInput
-          style={tw`w-1/2`}
-          onChangeText={setSearchText}
-          value={searchText}
-          placeholder="Tìm tên sân/ chủ sân"
+      <View style={tw`mx-auto`}>
+        <FlatList
+          data={meetings}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          ListFooterComponent={renderLoader}
+          onEndReached={loadMoreItem}
+          onEndReachedThreshold={0}
+          contentContainerStyle={{ paddingBottom: 200 }}
         />
       </View>
-
-      <ScrollView style={tw`mx-auto`}>
-        <NewestMeet />
-        <NewestMeet style={tw`mb-10`} />
-      </ScrollView>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  loaderStyle: {
+    marginVertical: 16,
+    alignItems: "center",
+    marginBottom: 100,
+  },
+});
 
 export default MeetingScreen;
