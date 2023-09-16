@@ -12,6 +12,7 @@ const initialState = {
 export const getUserProfile = createAsyncThunk(
   "userProfile/getUserProfile",
   async (token, thunkAPI) => {
+    console.log("get user profile!");
     try {
       const resp = await axios(url, {
         headers: {

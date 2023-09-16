@@ -182,7 +182,7 @@ const CreateMeeting = ({ navigation }) => {
 
           resetForm();
 
-          navigation.navigate("Meeting");
+          navigation.navigate("Meetings");
         }}
       >
         {({

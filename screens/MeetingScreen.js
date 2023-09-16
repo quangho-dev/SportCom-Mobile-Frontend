@@ -23,7 +23,6 @@ const MeetingScreen = ({ navigation }) => {
 
   const getMeetings = async () => {
     setIsLoading(true);
-
     const res = await axios.get(
       `${BASE_URL}/api/meeting/pagination?skip=${currentSkip}&take=${take}`,
       {

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { BASE_URL } from "@env";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const url = `${BASE_URL}/api/auth/me`;
 
@@ -12,6 +13,7 @@ const initialState = {
 export const getCurrentUser = createAsyncThunk(
   "user/getCurrentUser",
   async (token, thunkAPI) => {
+    console.log("tokennnnnn:", token);
     try {
       const resp = await axios(url, {
         headers: {

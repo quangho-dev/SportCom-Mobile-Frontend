@@ -4,8 +4,9 @@ import tw from "twrnc";
 import { useSelector } from "react-redux";
 import UserAvatar from "react-native-user-avatar";
 
-const HomeScreenHeaderTitle = ({ navigation, userProfile }) => {
+const HomeScreenHeaderTitle = ({ navigation }) => {
   const user = useSelector((state) => state.user.user);
+  const userProfile = useSelector((state) => state.userProfile.userProfile);
 
   return (
     <View style={tw`flex-1 flex-row items-center px-1 min-h-full`}>

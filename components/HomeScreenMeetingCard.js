@@ -3,10 +3,9 @@ import React from "react";
 import tw from "twrnc";
 import { TouchableOpacity } from "react-native";
 import transformLevelArray from "../utils/transformLevelArray";
-import { Video, ResizeMode } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
 
-const Meeting = ({ meeting }) => {
+const HomeScreenMeetingCard = ({ meeting, index }) => {
   const navigation = useNavigation();
 
   const handlePressMeeting = () => {
@@ -15,15 +14,52 @@ const Meeting = ({ meeting }) => {
     });
   };
 
-  return (
-    <View>
-      <TouchableOpacity
-        style={[tw`flex w-full min-h-60`, styles.shadow]}
-        onPress={handlePressMeeting}
-      >
-        <Image source={{ uri: meeting.imageUrl }} style={tw`w-full h-60`} />
+  const styles = StyleSheet.create({
+    shadow: {
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
 
-        <View style={tw`h-40 bg-white p-4`}>
+      elevation: 5,
+    },
+    video: {
+      flex: 1,
+      width: "100%",
+      alignSelf: "stretch",
+      height: 230,
+    },
+    wrapper: {
+      width: "100%",
+    },
+    container: {
+      flex: 1,
+      width: "100%",
+      overflow: "hidden",
+      marginRight: index === 0 ? 10 : 10,
+      marginLeft: index === 0 ? 0 : 10,
+      borderRadius: 7,
+    },
+    image: {
+      width: "100%",
+      height: 200,
+    },
+    imageWrapper: {
+      width: "100%",
+    },
+  });
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.wrapper} onPress={handlePressMeeting}>
+        <View style={styles.imageWrapper}>
+          <Image source={{ uri: meeting.imageUrl }} style={styles.image} />
+        </View>
+
+        <View style={[tw`h-full bg-white p-2 w-full max-w-full`]}>
           <View style={tw`flex-row`}>
             <Text style={tw`font-bold`}>Tên sân:&nbsp;</Text>
             <Text>{meeting.courseName}</Text>
@@ -34,7 +70,7 @@ const Meeting = ({ meeting }) => {
             <Text>{meeting.playingTime}</Text>
           </View>
 
-          <View style={tw`flex-row max-w-55`}>
+          <View style={tw`flex-row w-full max-w-full`}>
             <Text style={tw`font-bold`}>Địa chỉ:&nbsp;</Text>
             <Text>{meeting.address}</Text>
           </View>
@@ -61,34 +97,4 @@ const Meeting = ({ meeting }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  imageOverlay: {
-    position: "absolute",
-    left: 0,
-    bottom: 0,
-    width: "100%",
-    height: "100%",
-    opacity: 0.3,
-    backgroundColor: "black",
-    zIndex: 3,
-  },
-  shadow: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-
-    elevation: 5,
-  },
-  video: {
-    flex: 1,
-    width: "100%",
-    alignSelf: "stretch",
-    height: 230,
-  },
-});
-
-export default Meeting;
+export default HomeScreenMeetingCard;

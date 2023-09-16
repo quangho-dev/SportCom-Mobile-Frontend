@@ -3,21 +3,12 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AppFrontScreen from "./screens/AppFrontScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import LogInScreen from "./screens/LogInScreen";
-import {
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import { SafeAreaView, StatusBar } from "react-native";
 import tw from "twrnc";
 import Toast from "react-native-toast-message";
-import AuthContextProvider, { AuthContext } from "./store/auth-context";
-import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "./store/auth-context";
+import { useContext, useEffect } from "react";
 import HomeScreen from "./screens/HomeScreen";
-import AppLoading from "expo-app-loading";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -30,7 +21,6 @@ import UserProfileScreen from "./screens/UserProfileScreen";
 import EditUserProfileScreen from "./screens/EditUserProfileScreen";
 import TeamScreen from "./screens/TeamScreen";
 import CreateTeamScreen from "./screens/CreateTeamScreen";
-import MeetingScreen from "./screens/MeetingScreen";
 import LoadingOverlay from "./components/ui/LoadingOverlay";
 import { getUserProfile } from "./features/userProfile/userProfileSlice";
 import { getCurrentUser } from "./features/user/userSlice";
@@ -40,8 +30,8 @@ import {
   DrawerToggleButton,
   createDrawerNavigator,
 } from "@react-navigation/drawer";
-import SearchMeetingsScreen from "./screens/SearchMeetingsScreen";
 import SearchMeetingsScreenV2 from "./screens/SearchMeetingsScreenV2";
+import MeetingDetails from "./components/MeetingDetails";
 
 const Tab = createBottomTabNavigator();
 
@@ -52,7 +42,7 @@ const Drawer = createDrawerNavigator();
 const MeetingDrawer = () => {
   return (
     <Drawer.Navigator
-      initialRouteName="Meeting"
+      initialRouteName="Meetings"
       screenOptions={{
         drawerPosition: "right",
         headerLeft: false,
@@ -167,7 +157,7 @@ function HomeBottomTabs() {
         }}
       />
 
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Team"
         component={TeamScreen}
         options={() => {
@@ -176,7 +166,7 @@ function HomeBottomTabs() {
             title: "Câu lạc bộ",
           };
         }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 }
@@ -189,6 +179,15 @@ function AuthenticatedRootStack() {
         component={HomeBottomTabs}
         options={{
           headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="MeetingDetails"
+        component={MeetingDetails}
+        options={{
+          headerShown: true,
+          title: "Chi tiết buổi chơi",
         }}
       />
 
@@ -239,22 +238,8 @@ function AuthenticatedRootStack() {
   );
 }
 
-function Navigation() {
-  const authCtx = useContext(AuthContext);
-  console.log("authCtx:", authCtx);
-
-  return (
-    <NavigationContainer>
-      <Provider store={store}>
-        {!authCtx.isAuthenticated && <AuthStack />}
-        {authCtx.isAuthenticated && <AuthenticatedRootStack />}
-      </Provider>
-    </NavigationContainer>
-  );
-}
-
 export function App() {
-  const { token, isLoading } = useSelector((state) => state.auth);
+  const { token } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
 
@@ -262,14 +247,15 @@ export function App() {
     dispatch(addToken());
 
     if (token) {
+      console.log("$$$$$$");
       dispatch(getCurrentUser(token));
       dispatch(getUserProfile(token));
     }
-  }, [token]);
+  }, [token, getCurrentUser, getUserProfile]);
 
-  if (isLoading) {
-    return <LoadingOverlay />;
-  }
+  // if (isLoading) {
+  //   return <LoadingOverlay />;
+  // }
 
   return (
     <>

@@ -35,7 +35,11 @@ export const createMeeting = createAsyncThunk(
 const meetingSlice = createSlice({
   name: "meeting",
   initialState,
-  reducers: {},
+  reducers: {
+    setMeetings: (state, action) => {
+      state.meetings = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createMeeting.pending, (state) => {
@@ -43,7 +47,8 @@ const meetingSlice = createSlice({
       })
       .addCase(createMeeting.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.meeting = action.payload;
+        console.log("action.payload:", action.payload);
+        state.meetings = [action.payload, ...state.meetings];
 
         Toast.show({
           type: "success",
@@ -61,5 +66,7 @@ const meetingSlice = createSlice({
       });
   },
 });
+
+export const { setMeetings } = meetingSlice.actions;
 
 export default meetingSlice.reducer;

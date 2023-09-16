@@ -84,6 +84,7 @@ const SignUpScreen = ({ navigation }) => {
                   name="email"
                   placeholder="Địa chỉ email"
                   keyboardType="email-address"
+                  autoCapitalize="none"
                 />
               </View>
 
@@ -146,7 +147,6 @@ const styles = StyleSheet.create({
 
   logInText: {
     color: "blue",
-    textDecorationLine: "underline",
   },
 });
 

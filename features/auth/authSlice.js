@@ -22,6 +22,7 @@ export const addToken = createAsyncThunk("addtoken", async () => {
 export const signinUser = createAsyncThunk(
   "signinUser",
   async (values, thunkAPI) => {
+    console.log("log in!");
     try {
       const response = await axios.post(`${BASE_URL}/api/auth/signin`, values, {
         headers: {
@@ -46,6 +47,7 @@ export const signinUser = createAsyncThunk(
 export const signupUser = createAsyncThunk(
   "signupUser",
   async (values, thunkAPI) => {
+    console.log("Starting to sign up...");
     try {
       const response = await axios.post(`${BASE_URL}/api/auth/signup`, values, {
         headers: {
@@ -53,9 +55,9 @@ export const signupUser = createAsyncThunk(
         },
       });
 
-      thunkAPI.dispatch(getCurrentUser(response.data));
+      thunkAPI.dispatch(getCurrentUser(response.data.access_token));
 
-      return response.data;
+      return response.data.access_token;
     } catch (error) {
       // return custom error message from backend if present
       if (error.response && error.response.data.message) {
@@ -128,10 +130,17 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
 
-        Toast.show({
-          type: "error",
-          text1: "Xin lỗi, đã xảy ra lỗi :(",
-        });
+        if (action.payload === "This account has already existed") {
+          Toast.show({
+            type: "error",
+            text1: "Email này đã tồn tại!",
+          });
+        } else {
+          Toast.show({
+            type: "error",
+            text1: action.payload,
+          });
+        }
       });
   },
 });

@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   Alert,
+  Button,
 } from "react-native";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -25,6 +26,7 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../features/user/userSlice";
 import { setUserProfile } from "../features/userProfile/userProfileSlice";
+import getFileExtension from "../utils/getFileExtension";
 
 const EditUserProfileScreen = ({ navigation, route }) => {
   const [isPickerShow, setIsPickerShow] = useState(false);
@@ -38,8 +40,8 @@ const EditUserProfileScreen = ({ navigation, route }) => {
 
   const showConfirmDialog = () => {
     return Alert.alert(
-      "Bạn có chắc không?",
       "Bạn có chắc là muốn thay đổi thông tin cá nhân không?",
+      null,
       [
         {
           text: "Không",
@@ -67,11 +69,6 @@ const EditUserProfileScreen = ({ navigation, route }) => {
       },
       headerShadowVisible: false,
       headerTintColor: "#fff",
-      headerRight: () => (
-        <TouchableOpacity onPress={() => showConfirmDialog()}>
-          <Ionicons name="save" color="#fff" size={30} />
-        </TouchableOpacity>
-      ),
     });
   }, [navigation]);
 
@@ -113,6 +110,25 @@ const EditUserProfileScreen = ({ navigation, route }) => {
     setIsPickerShow(true);
   };
 
+  const handleUploadAvatarImage = async (imageFile) => {
+    const data = new FormData();
+    data.append("file", imageFile);
+    data.append("upload_preset", "avatarImage");
+    data.append("cloud_name", "sportcom");
+
+    const result = await axios.post(
+      "https://api.cloudinary.com/v1_1/sportcom/image/upload",
+      data,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return result.data.secure_url;
+  };
+
   return (
     <Formik
       initialValues={{
@@ -135,55 +151,54 @@ const EditUserProfileScreen = ({ navigation, route }) => {
       validationSchema={validationSchema}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(async () => {
-          const formData = new FormData();
-
-          formData.append("avatarImage", {
-            uri: values.avatarImage,
-            type: "image/jpg",
-            name: "image.jpg",
-          });
-
-          formData.append("username", values.username);
-          formData.append("gender", values.gender);
-          formData.append("dateOfBirth", values.dateOfBirth.toString());
-          formData.append("level", values.level);
-          formData.append("yearsOfExp", values.yearsOfExp);
-          formData.append("phoneNumber", values.phoneNumber);
-          formData.append("zaloNumber", values.zaloNumber);
-
-          const axiosInstance = axios.create({
-            baseURL: BASE_URL, // use with scheme
-            timeout: 30000,
-            headers: {
-              "X-Platform": "iOS",
-              "X-App-Build-Number": "1.0.0",
-            },
-          });
-
-          const config = {
-            method: "post",
-            url: "/api/user-profiles/create-user-profile-v2",
-            responseType: "json",
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
-              // if backend supports u can use gzip request encoding
-              // "Content-Encoding": "gzip",
-            },
-            transformRequest: (data, headers) => {
-              // !!! override data to return formData
-              // since axios converts that to string
-              return formData;
-            },
-            onUploadProgress: (progressEvent) => {
-              // use upload data, since it's an upload progress
-              // iOS: {"isTrusted": false, "lengthComputable": true, "loaded": 123, "total": 98902}
-            },
-            data: formData,
-          };
-
           try {
-            const response = await axiosInstance.request(config);
+            let newAvatarImageUrl = "";
+            if (userProfile.avatarImageUrl !== values.avatarImage) {
+              let newAvatarImageFile = {
+                uri: values.avatarImage,
+                type: `test/${getFileExtension(values.avatarImage)}`,
+                name: `test.${getFileExtension(values.avatarImage)}`,
+              };
+
+              const avatarImageUrl = await handleUploadAvatarImage(
+                newAvatarImageFile
+              );
+
+              newAvatarImageUrl = avatarImageUrl;
+            }
+
+            let newDateOfBirth = "";
+            if (userProfile.dateOfBirth !== values.dateOfBirth) {
+              const convertedDate = values.dateOfBirth.toISOString();
+
+              newDateOfBirth = convertedDate;
+            }
+
+            let data = {
+              username: values.username,
+              avatarImageUrl: newAvatarImageUrl
+                ? newAvatarImageUrl
+                : userProfile.avatarImageUrl,
+              dateOfBirth: newDateOfBirth
+                ? newDateOfBirth
+                : userProfile.dateOfBirth,
+              level: values.level,
+              gender: values.gender,
+              yearsOfExp: values.yearsOfExp,
+              phoneNumber: values.phoneNumber,
+              zaloNumber: values.zaloNumber,
+            };
+
+            const response = await axios.post(
+              `${BASE_URL}/api/user-profiles/create-user-profile-v3`,
+              data,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
 
             const { username, phoneNumber, email } = response.data;
             dispatch(
@@ -222,7 +237,6 @@ const EditUserProfileScreen = ({ navigation, route }) => {
       innerRef={formRef}
     >
       {({
-        handleSubmit,
         isValid,
         values,
         errors,
@@ -390,7 +404,6 @@ const EditUserProfileScreen = ({ navigation, route }) => {
               </Text>
 
               <TextInput
-                // placeholder="2"
                 onChangeText={handleChange("yearsOfExp")}
                 onBlur={handleBlur("yearsOfExp")}
                 style={styles.textInput}
@@ -426,7 +439,7 @@ const EditUserProfileScreen = ({ navigation, route }) => {
               )}
             </View>
 
-            <View style={tw`mb-4 pb-10`}>
+            <View style={tw`mb-4`}>
               <Text style={tw`mb-1`}>Số Zalo:</Text>
 
               <TextInput
@@ -438,6 +451,15 @@ const EditUserProfileScreen = ({ navigation, route }) => {
                 keyboardType="numeric"
               />
             </View>
+
+            <View style={tw`mb-4 pb-10`}>
+              <Button
+                disabled={!isValid}
+                color={s.colors.primary}
+                onPress={showConfirmDialog}
+                title="Gửi"
+              />
+            </View>
           </ScrollView>
 
           <View style={styles.container}>
@@ -445,7 +467,7 @@ const EditUserProfileScreen = ({ navigation, route }) => {
               //visibility of Overlay Loading Spinner
               visible={isSubmitting}
               //Text with the Spinner
-              textContent={"Loading..."}
+              textContent={"Đang xử lý..."}
               //Text style of the Spinner Text
               textStyle={styles.spinnerTextStyle}
             />

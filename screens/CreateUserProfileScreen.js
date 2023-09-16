@@ -72,6 +72,25 @@ const CreateUserProfileScreen = ({ navigation }) => {
     phoneNumber: yup.number().required("Số điện thoại không được để trống"),
   });
 
+  const handleUploadAvatarImage = async (imageFile) => {
+    const data = new FormData();
+    data.append("file", imageFile);
+    data.append("upload_preset", "avatarImage");
+    data.append("cloud_name", "sportcom");
+
+    const result = await axios.post(
+      "https://api.cloudinary.com/v1_1/sportcom/image/upload",
+      data,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return result.data.secure_url;
+  };
+
   return (
     <ScrollView style={tw`pt-6 px-7 flex-1 bg-white`}>
       <View style={tw`p-6 bg-white pb-15`}>
@@ -93,75 +112,45 @@ const CreateUserProfileScreen = ({ navigation }) => {
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
+            console.log("Submitting user profile...");
+
             setTimeout(async () => {
-              const formData = new FormData();
-              formData.append("avatarImage", {
+              console.log(" values.avatarImage,:", values.avatarImage);
+
+              let newAvatarImageFile = {
                 uri: values.avatarImage,
-                type: "image/jpg",
-                name: "image.jpg",
-              });
-              formData.append("username", values.username);
-              formData.append("gender", values.gender);
-              formData.append("dateOfBirth", values.dateOfBirth.toString());
-              formData.append("level", values.level);
-              formData.append("yearsOfExp", values.yearsOfExp);
-              formData.append("phoneNumber", values.phoneNumber);
-              formData.append("zaloNumber", values.zaloNumber);
-
-              const axiosInstance = axios.create({
-                baseURL: BASE_URL, // use with scheme
-                timeout: 30000,
-                headers: {
-                  "X-Platform": "iOS",
-                  "X-App-Build-Number": "1.0.0",
-                },
-              });
-
-              const config = {
-                method: "post",
-                url: "/api/user-profiles/create-user-profile-v2",
-                responseType: "json",
-                headers: {
-                  "Content-Type": "multipart/form-data",
-                  Authorization: `Bearer ${authCtx.token}`,
-                  // if backend supports u can use gzip request encoding
-                  // "Content-Encoding": "gzip",
-                },
-                transformRequest: (data, headers) => {
-                  // !!! override data to return formData
-                  // since axios converts that to string
-                  return formData;
-                },
-                onUploadProgress: (progressEvent) => {
-                  // use upload data, since it's an upload progress
-                  // iOS: {"isTrusted": false, "lengthComputable": true, "loaded": 123, "total": 98902}
-                },
-                data: formData,
+                type: `test/${getFileExtension(values.avatarImage)}`,
+                name: `test.${getFileExtension(values.avatarImage)}`,
               };
 
-              try {
-                const response = await axiosInstance.request(config);
+              const avatarImageUrl = await handleUploadAvatarImage(
+                newAvatarImageFile
+              );
 
-                Toast.show({
-                  type: "success",
-                  text1: "Tạo thông tin cá nhân thành công!",
-                  visibilityTime: 2000,
-                });
+              console.log("avatarImageUrl:", avatarImageUrl);
+              // try {
+              //   const response = await axiosInstance.request(config);
 
-                setSubmitting(false);
+              //   Toast.show({
+              //     type: "success",
+              //     text1: "Tạo thông tin cá nhân thành công!",
+              //     visibilityTime: 2000,
+              //   });
 
-                navigation.navigate("Home");
-              } catch (error) {
-                console.log("error:", error);
+              //   setSubmitting(false);
 
-                Toast.show({
-                  type: "error",
-                  text1: "Xin lỗi, đã xảy ra lỗi :(",
-                });
+              //   navigation.navigate("Home");
+              // } catch (error) {
+              //   console.log("error:", error);
 
-                setSubmitting(false);
-              }
-            });
+              //   Toast.show({
+              //     type: "error",
+              //     text1: "Xin lỗi, đã xảy ra lỗi :(",
+              //   });
+
+              //   setSubmitting(false);
+              // }
+            }, 500);
           }}
         >
           {({
