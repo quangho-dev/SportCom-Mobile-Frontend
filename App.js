@@ -253,10 +253,6 @@ export function App() {
     }
   }, [token, getCurrentUser, getUserProfile]);
 
-  // if (isLoading) {
-  //   return <LoadingOverlay />;
-  // }
-
   return (
     <>
       <StatusBar style="light" />

@@ -31,11 +31,10 @@ import getFileExtension from "../utils/getFileExtension";
 const EditUserProfileScreen = ({ navigation, route }) => {
   const [isPickerShow, setIsPickerShow] = useState(false);
 
-  const { user, isLoading: isUserLoading } = useSelector((store) => store.user);
+  const { user } = useSelector((store) => store.user);
   const { token } = useSelector((store) => store.auth);
-  const { userProfile, isLoading: isUserProfileLoading } = useSelector(
-    (store) => store.userProfile
-  );
+  const { userProfile } = useSelector((store) => store.userProfile);
+
   const dispatch = useDispatch();
 
   const showConfirmDialog = () => {
@@ -139,7 +138,9 @@ const EditUserProfileScreen = ({ navigation, route }) => {
         username: user ? user.username : "",
         gender: userProfile && userProfile.gender ? userProfile.gender : "",
         dateOfBirth:
-          userProfile && userProfile.dateOfBirth ? userProfile.dateOfBirth : "",
+          userProfile && userProfile.dateOfBirth
+            ? userProfile.dateOfBirth
+            : null,
         level: userProfile && userProfile.level ? userProfile.level : "",
         yearsOfExp:
           userProfile && userProfile.yearsOfExp ? userProfile.yearsOfExp : "0",
@@ -153,7 +154,22 @@ const EditUserProfileScreen = ({ navigation, route }) => {
         setTimeout(async () => {
           try {
             let newAvatarImageUrl = "";
-            if (userProfile.avatarImageUrl !== values.avatarImage) {
+            if (
+              userProfile &&
+              userProfile.avatarImageUrl !== values.avatarImage
+            ) {
+              let newAvatarImageFile = {
+                uri: values.avatarImage,
+                type: `test/${getFileExtension(values.avatarImage)}`,
+                name: `test.${getFileExtension(values.avatarImage)}`,
+              };
+
+              const avatarImageUrl = await handleUploadAvatarImage(
+                newAvatarImageFile
+              );
+
+              newAvatarImageUrl = avatarImageUrl;
+            } else if (!userProfile) {
               let newAvatarImageFile = {
                 uri: values.avatarImage,
                 type: `test/${getFileExtension(values.avatarImage)}`,
@@ -168,7 +184,11 @@ const EditUserProfileScreen = ({ navigation, route }) => {
             }
 
             let newDateOfBirth = "";
-            if (userProfile.dateOfBirth !== values.dateOfBirth) {
+            if (userProfile && userProfile.dateOfBirth !== values.dateOfBirth) {
+              const convertedDate = values.dateOfBirth.toISOString();
+
+              newDateOfBirth = convertedDate;
+            } else if (!userProfile) {
               const convertedDate = values.dateOfBirth.toISOString();
 
               newDateOfBirth = convertedDate;
