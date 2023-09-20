@@ -27,9 +27,9 @@ const SearchMeetingsScreenV2 = () => {
   // get data from the api
   useEffect(() => {
     fetchMeetings();
-  }, [fetchMeetings]);
+  }, []);
 
-  const fetchMeetings = useCallback(async () => {
+  const fetchMeetings = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/meeting/latest-meetings`, {
         headers: {
@@ -45,7 +45,7 @@ const SearchMeetingsScreenV2 = () => {
       setIsLoading(false);
       console.log(error);
     }
-  }, []);
+  };
 
   if (isLoading) {
     return (

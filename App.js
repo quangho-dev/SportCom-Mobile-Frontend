@@ -6,8 +6,7 @@ import LogInScreen from "./screens/LogInScreen";
 import { SafeAreaView, StatusBar } from "react-native";
 import tw from "twrnc";
 import Toast from "react-native-toast-message";
-import { AuthContext } from "./store/auth-context";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import HomeScreen from "./screens/HomeScreen";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AntDesign from "react-native-vector-icons/AntDesign";
@@ -32,6 +31,8 @@ import {
 } from "@react-navigation/drawer";
 import SearchMeetingsScreenV2 from "./screens/SearchMeetingsScreenV2";
 import MeetingDetails from "./components/MeetingDetails";
+import MeetingsBelongToUserScreen from "./screens/MeetingsBelongToUserScreen";
+import EditMeetingScreen from "./screens/EditMeetingScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -76,6 +77,20 @@ const MeetingDrawer = () => {
             title: "Tạo buổi chơi",
             drawerIcon: ({ focused, size }) => (
               <Ionicons name="add" size={size} color={s.colors.primary} />
+            ),
+          };
+        }}
+      />
+
+      <Drawer.Screen
+        name="MeetingsBelongToUser"
+        component={MeetingsBelongToUserScreen}
+        options={() => {
+          return {
+            headerShown: true,
+            title: "Các buổi chơi của bạn",
+            drawerIcon: ({ focused, size }) => (
+              <Ionicons name="folder" size={size} color={s.colors.primary} />
             ),
           };
         }}
@@ -192,6 +207,15 @@ function AuthenticatedRootStack() {
       />
 
       <Stack.Screen
+        name="EditMeeting"
+        component={EditMeetingScreen}
+        options={{
+          headerShown: true,
+          title: "Chỉnh sửa buổi chơi",
+        }}
+      />
+
+      <Stack.Screen
         name="CreateUserProfile"
         component={CreateUserProfileScreen}
         options={{
@@ -247,7 +271,6 @@ export function App() {
     dispatch(addToken());
 
     if (token) {
-      console.log("$$$$$$");
       dispatch(getCurrentUser(token));
       dispatch(getUserProfile(token));
     }

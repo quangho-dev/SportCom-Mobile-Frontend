@@ -14,9 +14,13 @@ import LoadingOverlay from "../components/ui/LoadingOverlay";
 const s = require("../style");
 import { useDispatch } from "react-redux";
 import { signinUser } from "../features/auth/authSlice";
+import { TextInput } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { TouchableOpacity } from "react-native";
 
 const LogInScreen = ({ navigation }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isSecureTextEntry, setIsSecureTextEntry] = useState(true);
 
   const dispatch = useDispatch();
 
@@ -54,7 +58,16 @@ const LogInScreen = ({ navigation }) => {
             }, 400);
           }}
         >
-          {({ handleSubmit, isValid, isSubmitting }) => (
+          {({
+            handleSubmit,
+            isValid,
+            isSubmitting,
+            values,
+            handleChange,
+            handleBlur,
+            errors,
+            touched,
+          }) => (
             <>
               <View style={tw`mb-4`}>
                 <Field
@@ -67,12 +80,33 @@ const LogInScreen = ({ navigation }) => {
               </View>
 
               <View style={tw`mb-4`}>
-                <Field
-                  component={CustomInput}
-                  name="password"
-                  placeholder="Mật khẩu"
-                  secureTextEntry
-                />
+                <View style={styles.passwordInputWrapper}>
+                  <TextInput
+                    name="password"
+                    placeholder="Mật khẩu"
+                    secureTextEntry={isSecureTextEntry}
+                    onChangeText={handleChange("password")}
+                    onBlur={handleBlur("password")}
+                    style={styles.textInput}
+                    value={values.password}
+                  />
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      setIsSecureTextEntry((prev) => !prev);
+                    }}
+                    style={{ paddingLeft: 20, paddingVertical: 10 }}
+                  >
+                    <Ionicons
+                      name={isSecureTextEntry ? "eye" : "eye-off"}
+                      size={15}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {errors.password && touched.password && (
+                  <Text style={styles.textError}>{errors.password}</Text>
+                )}
               </View>
 
               {isSubmitting ? (
@@ -116,6 +150,27 @@ const styles = StyleSheet.create({
 
   signUpText: {
     color: "blue",
+  },
+  passwordInputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    height: 40,
+    backgroundColor: "white",
+    borderColor: "gray",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+  },
+  textError: {
+    fontSize: 10,
+    color: "red",
+  },
+  errorInput: {
+    borderColor: "red",
+  },
+  textInput: {
+    flex: 1,
   },
 });
 

@@ -1,5 +1,5 @@
 import { View, Text, Button, TextInput, ScrollView } from "react-native";
-import React, { useState } from "react";
+import React from "react";
 import { Formik } from "formik";
 import tw from "twrnc";
 import s from "../style";
@@ -9,28 +9,31 @@ import { StyleSheet } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import * as yup from "yup";
 import { MultipleSelectList } from "react-native-dropdown-select-list";
-import { Cloudinary } from "@cloudinary/url-gen";
 import axios from "axios";
 import getFileExtension from "../utils/getFileExtension";
-import { useDispatch, useSelector } from "react-redux";
-import { createMeeting } from "../features/meeting/meetingSlice";
+import { useDispatch } from "react-redux";
+import { updateMeeting } from "../features/meeting/meetingSlice";
 import Spinner from "react-native-loading-spinner-overlay";
+import transformLevelArray from "../utils/transformLevelArray";
+import { Alert } from "react-native";
+import { useRef } from "react";
 
-const CreateMeeting = ({ navigation }) => {
-  const [status, setStatus] = React.useState({});
+const EditMeetingScreen = ({ navigation, route }) => {
   const [selected, setSelected] = React.useState([]);
-  const { meeting, isLoading } = useSelector((store) => store.meeting);
+
+  const meeting = route.params.meeting;
+
+  const data = [
+    { key: "NEWBIE", value: "Yếu" },
+    { key: "MEDIUM", value: "Trung Bình" },
+    { key: "MEDIUM_PLUS", value: "Trung Bình+" },
+    { key: "GOOD", value: "Khá" },
+    { key: "GOOD_PLUS", value: "Khá+" },
+    { key: "EXELLENT", value: "Giỏi" },
+    { key: "EXELLENT_PLUS", value: "Giỏi+" },
+  ];
 
   const dispatch = useDispatch();
-
-  const cld = new Cloudinary({
-    cloud: {
-      cloudName: "sportcom",
-    },
-    url: {
-      secure: true,
-    },
-  });
 
   const handleUploadImage = async (imageFile) => {
     const data = new FormData();
@@ -70,32 +73,22 @@ const CreateMeeting = ({ navigation }) => {
     return result.data.secure_url;
   };
 
-  const data = [
-    { key: "NEWBIE", value: "Yếu" },
-    { key: "MEDIUM", value: "Trung Bình" },
-    { key: "MEDIUM_PLUS", value: "Trung Bình+" },
-    { key: "GOOD", value: "Khá" },
-    { key: "GOOD_PLUS", value: "Khá+" },
-    { key: "EXELLENT", value: "Giỏi" },
-    { key: "EXELLENT_PLUS", value: "Giỏi+" },
-  ];
-
   const video = React.useRef(null);
 
   const initialValues = {
-    title: "",
-    teamName: "",
-    meetingImage: "",
-    meetingVideo: "",
-    courseName: "",
-    address: "",
-    courseNumbers: "",
-    playingTime: "",
-    fee: "",
-    phoneNumber: "",
-    zaloNumber: "",
-    levels: [],
-    description: "",
+    title: meeting.title ? meeting.title : "",
+    teamName: meeting.teamName ? meeting.teamName : "",
+    meetingImage: meeting.imageUrl ? meeting.imageUrl : "",
+    meetingVideo: meeting.videoUrl ? meeting.videoUrl : "",
+    courseName: meeting.courseName ? meeting.courseName : "",
+    address: meeting.address ? meeting.address : "",
+    courseNumbers: meeting.courseNumbers ? meeting.courseNumbers : "",
+    playingTime: meeting.playingTime ? meeting.playingTime : "",
+    fee: meeting.fee ? meeting.fee : "",
+    phoneNumber: meeting.phoneNumber ? meeting.phoneNumber : "",
+    zaloNumber: meeting.zaloNumber ? meeting.zaloNumber : "",
+    levels: meeting.levels ? meeting.levels : [],
+    description: meeting.description ? meeting.description : "",
   };
 
   const validationSchema = yup.object().shape({
@@ -139,53 +132,86 @@ const CreateMeeting = ({ navigation }) => {
     }
   };
 
+  const formRef = useRef();
+
+  function submitHandler() {
+    if (formRef.current) {
+      formRef.current.handleSubmit();
+    }
+  }
+
+  const showConfirmDialog = () => {
+    return Alert.alert("Bạn có chắc muốn chỉnh sửa buổi chơi không?", null, [
+      {
+        text: "Không",
+      },
+      {
+        text: "Có",
+        onPress: () => {
+          submitHandler();
+        },
+      },
+    ]);
+  };
+
   return (
     <ScrollView style={tw`p-4`} showsVerticalScrollIndicator={false}>
       <Formik
+        innerRef={formRef}
+        enableReinitialize
         initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={async (values, { setSubmitting, resetForm }) => {
-          let newImageFile = {
-            uri: values.meetingImage,
-            type: `test/${getFileExtension(values.meetingImage)}`,
-            name: `test.${getFileExtension(values.meetingImage)}`,
-          };
+        onSubmit={async (values, { setSubmitting }) => {
+          let updateImageUrl = "";
+          if (values.meetingImage !== meeting.imageUrl) {
+            let newImageFile = {
+              uri: values.meetingImage,
+              type: `test/${getFileExtension(values.meetingImage)}`,
+              name: `test.${getFileExtension(values.meetingImage)}`,
+            };
 
-          const imageUrl = await handleUploadImage(newImageFile);
+            updateImageUrl = await handleUploadImage(newImageFile);
+          } else {
+            updateImageUrl = meeting.imageUrl;
+          }
 
-          let videoUrl = "";
-          if (values.meetingVideo) {
+          let updateVideoUrl = "";
+          if (values.meetingVideo !== meeting.videoUrl) {
             let newVideoFile = {
               uri: values.meetingVideo,
               type: `test/${getFileExtension(values.meetingVideo)}`,
               name: `test.${getFileExtension(values.meetingVideo)}`,
             };
 
-            videoUrl = await handleUploadVideo(newVideoFile);
+            updateVideoUrl = await handleUploadVideo(newVideoFile);
+          } else {
+            updateVideoUrl = meeting.videoUrl;
           }
 
           let data = {
+            id: meeting.id,
             title: values.title,
             teamName: values.teamName,
             courseName: values.courseName,
             courseNumbers: values.courseNumbers,
             address: values.address,
             phoneNumber: values.phoneNumber,
+            zaloNumber: values.zaloNumber,
             playingTime: values.playingTime,
             fee: values.fee,
             levels: values.levels,
             description: values.description,
-            imageUrl: imageUrl,
-            videoUrl: videoUrl,
+            imageUrl: updateImageUrl,
+            videoUrl: updateVideoUrl,
           };
 
-          dispatch(createMeeting(data));
+          dispatch(updateMeeting(data));
 
           setSubmitting(false);
 
-          resetForm();
-
-          navigation.navigate("Meetings");
+          navigation.navigate("MeetingDetails", {
+            meetingId: meeting.id,
+          });
         }}
       >
         {({
@@ -193,7 +219,6 @@ const CreateMeeting = ({ navigation }) => {
           values,
           handleChange,
           handleBlur,
-          handleSubmit,
           isValid,
           errors,
           touched,
@@ -211,6 +236,8 @@ const CreateMeeting = ({ navigation }) => {
                 onBlur={handleBlur("title")}
                 style={styles.textInput}
                 value={values.title}
+                multiline
+                numberOfLines={5}
               />
 
               {errors.title && touched.title && (
@@ -280,20 +307,7 @@ const CreateMeeting = ({ navigation }) => {
                     useNativeControls
                     resizeMode={ResizeMode.CONTAIN}
                     isLooping
-                    onPlaybackStatusUpdate={(status) => setStatus(() => status)}
                   />
-
-                  {/* <View style={styles.buttons}>
-                    <Button
-                      title={status.isPlaying ? "Pause" : "Play"}
-                      onPress={() =>
-                        status.isPlaying
-                          ? video.current.pauseAsync()
-                          : video.current.playAsync()
-                      }
-                      color={s.colors.primary}
-                    />
-                  </View> */}
                 </View>
               )}
 
@@ -419,6 +433,15 @@ const CreateMeeting = ({ navigation }) => {
                 placeholder="Chọn một vài trình độ"
               />
 
+              {values.levels.length > 0 && (
+                <View style={styles.currentLevelsWrapper}>
+                  <Text style={styles.currentLevelsText}>
+                    Các trình độ hiện tại:&nbsp;
+                  </Text>
+                  <Text>{transformLevelArray(meeting.levels)}</Text>
+                </View>
+              )}
+
               {errors.levels && touched.levels && (
                 <Text style={styles.textError}>{errors.levels}</Text>
               )}
@@ -484,7 +507,7 @@ const CreateMeeting = ({ navigation }) => {
               <Button
                 color={s.colors.primary}
                 title="Gửi"
-                onPress={handleSubmit}
+                onPress={showConfirmDialog}
                 disabled={!isValid}
               />
             </View>
@@ -492,7 +515,7 @@ const CreateMeeting = ({ navigation }) => {
             <View style={styles.container}>
               <Spinner
                 //visibility of Overlay Loading Spinner
-                visible={isLoading || isSubmitting}
+                visible={isSubmitting}
                 //Text with the Spinner
                 textContent={"Đang xử lý..."}
                 //Text style of the Spinner Text
@@ -551,6 +574,12 @@ const styles = StyleSheet.create({
   spinnerTextStyle: {
     color: "#FFF",
   },
+  currentLevelsWrapper: {
+    flexDirection: "row",
+  },
+  currentLevelsText: {
+    fontWeight: "bold",
+  },
 });
 
-export default CreateMeeting;
+export default EditMeetingScreen;

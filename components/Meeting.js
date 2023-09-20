@@ -11,7 +11,7 @@ const Meeting = ({ meeting }) => {
 
   const handlePressMeeting = () => {
     navigation.navigate("MeetingDetails", {
-      meeting,
+      meetingId: meeting.id,
     });
   };
 
@@ -23,7 +23,11 @@ const Meeting = ({ meeting }) => {
       >
         <Image source={{ uri: meeting.imageUrl }} style={tw`w-full h-60`} />
 
-        <View style={tw`h-40 bg-white p-4`}>
+        <View style={tw`bg-white p-4`}>
+          <View style={tw`flex-row`}>
+            <Text style={styles.title}>{meeting.title}</Text>
+          </View>
+
           <View style={tw`flex-row`}>
             <Text style={tw`font-bold`}>Tên sân:&nbsp;</Text>
             <Text>{meeting.courseName}</Text>
@@ -88,6 +92,10 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "stretch",
     height: 230,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 

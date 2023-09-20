@@ -22,7 +22,7 @@ export const addToken = createAsyncThunk("addtoken", async () => {
 export const signinUser = createAsyncThunk(
   "signinUser",
   async (values, thunkAPI) => {
-    console.log("log in!");
+    console.log("log in");
     try {
       const response = await axios.post(`${BASE_URL}/api/auth/signin`, values, {
         headers: {
@@ -47,7 +47,7 @@ export const signinUser = createAsyncThunk(
 export const signupUser = createAsyncThunk(
   "signupUser",
   async (values, thunkAPI) => {
-    console.log("Starting to sign up...");
+    console.log("Starting to sign up...!");
     try {
       const response = await axios.post(`${BASE_URL}/api/auth/signup`, values, {
         headers: {

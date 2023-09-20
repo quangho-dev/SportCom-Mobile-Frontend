@@ -4,8 +4,9 @@ import {
   Button,
   StyleSheet,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Field, Formik } from "formik";
 import tw from "twrnc";
 import * as yup from "yup";
@@ -13,8 +14,17 @@ import CustomInput from "../components/CustomInput";
 const s = require("../style");
 import { useDispatch } from "react-redux";
 import { signupUser } from "../features/auth/authSlice";
+import { TouchableOpacity } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const SignUpScreen = ({ navigation }) => {
+  const [isSecureTextEntryPassword, setIsSecureTextEntryPassword] =
+    useState(true);
+  const [
+    isSecureTextEntryConfirmPassword,
+    setIsSecureTextEntryConfirmPassword,
+  ] = useState(true);
+
   const dispatch = useDispatch();
 
   const signUpValidationSchema = yup.object().shape({
@@ -59,7 +69,16 @@ const SignUpScreen = ({ navigation }) => {
             }, 400);
           }}
         >
-          {({ handleSubmit, isValid, isSubmitting }) => (
+          {({
+            handleSubmit,
+            isValid,
+            isSubmitting,
+            handleChange,
+            handleBlur,
+            errors,
+            touched,
+            values,
+          }) => (
             <>
               <View style={tw`mb-4`}>
                 <Field
@@ -89,21 +108,75 @@ const SignUpScreen = ({ navigation }) => {
               </View>
 
               <View style={tw`mb-4`}>
-                <Field
-                  component={CustomInput}
-                  name="password"
-                  placeholder="Mật khẩu"
-                  secureTextEntry
-                />
+                <View
+                  style={[
+                    styles.passwordInputWrapper,
+                    errors.password && styles.errorInput,
+                  ]}
+                >
+                  <TextInput
+                    name="password"
+                    placeholder="Mật khẩu"
+                    secureTextEntry={isSecureTextEntryPassword}
+                    onChangeText={handleChange("password")}
+                    onBlur={handleBlur("password")}
+                    style={styles.textInput}
+                    value={values.password}
+                  />
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      setIsSecureTextEntryPassword((prev) => !prev);
+                    }}
+                    style={{ paddingLeft: 20, paddingVertical: 10 }}
+                  >
+                    <Ionicons
+                      name={isSecureTextEntryPassword ? "eye" : "eye-off"}
+                      size={15}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {errors.password && touched.password && (
+                  <Text style={styles.textError}>{errors.password}</Text>
+                )}
               </View>
 
               <View style={tw`mb-4`}>
-                <Field
-                  component={CustomInput}
-                  name="confirmPassword"
-                  placeholder="Xác nhận lại mật khẩu"
-                  secureTextEntry
-                />
+                <View
+                  style={[
+                    styles.passwordInputWrapper,
+                    errors.confirmPassword && styles.errorInput,
+                  ]}
+                >
+                  <TextInput
+                    name="confirmPassword"
+                    placeholder="Xác nhận mật khẩu"
+                    secureTextEntry={isSecureTextEntryConfirmPassword}
+                    onChangeText={handleChange("confirmPassword")}
+                    onBlur={handleBlur("confirmPassword")}
+                    style={styles.textInput}
+                    value={values.confirmPassword}
+                  />
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      setIsSecureTextEntryConfirmPassword((prev) => !prev);
+                    }}
+                    style={{ paddingLeft: 20, paddingVertical: 10 }}
+                  >
+                    <Ionicons
+                      name={
+                        isSecureTextEntryConfirmPassword ? "eye" : "eye-off"
+                      }
+                      size={15}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {errors.confirmPassword && touched.confirmPassword && (
+                  <Text style={styles.textError}>{errors.confirmPassword}</Text>
+                )}
               </View>
 
               {isSubmitting ? (
@@ -147,6 +220,28 @@ const styles = StyleSheet.create({
 
   logInText: {
     color: "blue",
+  },
+  passwordInputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    height: 40,
+    backgroundColor: "white",
+    borderColor: "gray",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    zIndex: 99,
+  },
+  textError: {
+    fontSize: 10,
+    color: "red",
+  },
+  errorInput: {
+    borderColor: "red",
+  },
+  textInput: {
+    flex: 1,
   },
 });
 

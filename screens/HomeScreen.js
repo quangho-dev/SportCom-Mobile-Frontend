@@ -74,7 +74,7 @@ const HomeScreen = () => {
     navigation.navigate("SearchMeetingsHome");
   };
 
-  const fetchMeetings = useCallback(async () => {
+  const fetchMeetings = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/meeting/latest-meetings`, {
         headers: {
@@ -90,11 +90,11 @@ const HomeScreen = () => {
       setIsLoading(false);
       console.log(error);
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchMeetings();
-  }, [fetchMeetings]);
+  }, []);
 
   const renderItem = ({ index, item }) => {
     return <HomeScreenMeetingCard meeting={item} index={index} />;

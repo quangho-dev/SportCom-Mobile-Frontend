@@ -220,6 +220,8 @@ const EditUserProfileScreen = ({ navigation, route }) => {
               }
             );
 
+            console.log("response.data:", response.data);
+
             const { username, phoneNumber, email } = response.data;
             dispatch(
               setUser({

@@ -10,7 +10,7 @@ const HomeScreenMeetingCard = ({ meeting, index }) => {
 
   const handlePressMeeting = () => {
     navigation.navigate("MeetingDetails", {
-      meeting,
+      meetingId: meeting.id,
     });
   };
 
@@ -50,6 +50,11 @@ const HomeScreenMeetingCard = ({ meeting, index }) => {
     imageWrapper: {
       width: "100%",
     },
+    title: {
+      fontSize: 17,
+      fontWeight: "bold",
+      maxWidth: 270,
+    },
   });
 
   return (
@@ -60,6 +65,10 @@ const HomeScreenMeetingCard = ({ meeting, index }) => {
         </View>
 
         <View style={[tw`h-full bg-white p-2 w-full max-w-full`]}>
+          <View style={tw`flex-row`}>
+            <Text style={styles.title}>{meeting.title}</Text>
+          </View>
+
           <View style={tw`flex-row`}>
             <Text style={tw`font-bold`}>Tên sân:&nbsp;</Text>
             <Text>{meeting.courseName}</Text>

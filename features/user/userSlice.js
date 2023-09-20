@@ -13,7 +13,7 @@ const initialState = {
 export const getCurrentUser = createAsyncThunk(
   "user/getCurrentUser",
   async (token, thunkAPI) => {
-    console.log("tokennnnnn:", token);
+    console.log("tokennn:", token);
     try {
       const resp = await axios(url, {
         headers: {
@@ -21,8 +21,12 @@ export const getCurrentUser = createAsyncThunk(
         },
       });
 
+      console.log("resp", resp);
+
       return resp.data;
     } catch (error) {
+      console.log("error:", error);
+
       return thunkAPI.rejectWithValue("Xin lỗi, đã xảy ra lỗi.");
     }
   }
