@@ -23,6 +23,8 @@ const EditMeetingScreen = ({ navigation, route }) => {
 
   const meeting = route.params.meeting;
 
+  const dispatch = useDispatch();
+
   const data = [
     { key: "NEWBIE", value: "Yếu" },
     { key: "MEDIUM", value: "Trung Bình" },
@@ -32,8 +34,6 @@ const EditMeetingScreen = ({ navigation, route }) => {
     { key: "EXELLENT", value: "Giỏi" },
     { key: "EXELLENT_PLUS", value: "Giỏi+" },
   ];
-
-  const dispatch = useDispatch();
 
   const handleUploadImage = async (imageFile) => {
     const data = new FormData();

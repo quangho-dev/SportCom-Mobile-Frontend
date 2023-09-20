@@ -5,6 +5,9 @@ import { TouchableOpacity } from "react-native";
 import transformLevelArray from "../utils/transformLevelArray";
 import { Video, ResizeMode } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import Feather from "react-native-vector-icons/Feather";
+import s from "../style";
 
 const Meeting = ({ meeting }) => {
   const navigation = useNavigation();
@@ -38,7 +41,7 @@ const Meeting = ({ meeting }) => {
             <Text>{meeting.playingTime}</Text>
           </View>
 
-          <View style={tw`flex-row max-w-55`}>
+          <View style={tw`flex-row max-w-70`}>
             <Text style={tw`font-bold`}>Địa chỉ:&nbsp;</Text>
             <Text>{meeting.address}</Text>
           </View>
@@ -59,8 +62,32 @@ const Meeting = ({ meeting }) => {
             <Text style={tw`font-bold`}>Phí:&nbsp;</Text>
             <Text>{meeting.fee}</Text>
           </View>
+
+          {meeting.isFull ? (
+            <View style={styles.isFullIconWrapper}>
+              <AntDesign
+                name="checkcircleo"
+                size={22}
+                color="#0d6efd"
+                style={tw`mr-1`}
+              />
+              <Text style={styles.isFullText}>Đã đủ người</Text>
+            </View>
+          ) : (
+            <View style={styles.isFullIconWrapper}>
+              <Feather
+                name="alert-triangle"
+                size={22}
+                color={s.colors.primary}
+                style={tw`mr-1`}
+              />
+              <Text style={styles.isNotFullText}>Còn tuyển</Text>
+            </View>
+          )}
         </View>
       </TouchableOpacity>
+
+      <View style={styles.bottomLine}></View>
     </View>
   );
 };
@@ -96,6 +123,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
+  },
+  isFullIconWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  isFullText: {
+    color: "#0d6efd",
+    fontSize: 16,
+  },
+  isNotFullText: {
+    color: s.colors.primary,
+    fontSize: 16,
+  },
+  bottomLine: {
+    height: 17,
+    width: "100%",
+    backgroundColor: "#b3b3b3",
   },
 });
 

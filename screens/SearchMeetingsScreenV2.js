@@ -12,6 +12,7 @@ import { useCallback } from "react";
 import tw from "twrnc";
 import s from "../style";
 import { setMeetings } from "../features/meeting/meetingSlice";
+import { useIsFocused } from "@react-navigation/native";
 
 const SearchMeetingsScreenV2 = () => {
   const [searchPhrase, setSearchPhrase] = useState("");
@@ -22,12 +23,14 @@ const SearchMeetingsScreenV2 = () => {
   const { token } = useSelector((store) => store.auth);
   const { meetings } = useSelector((store) => store.meeting);
 
+  const isScreenFocused = useIsFocused();
+
   const dispatch = useDispatch();
 
   // get data from the api
   useEffect(() => {
     fetchMeetings();
-  }, []);
+  }, [isScreenFocused]);
 
   const fetchMeetings = async () => {
     try {

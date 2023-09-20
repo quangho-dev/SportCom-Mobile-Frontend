@@ -8,7 +8,7 @@ import { useState } from "react";
 import tw from "twrnc";
 import { StyleSheet } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { logout } from "../features/auth/authSlice";
 import { useCallback } from "react";
 import { FlatList } from "react-native";
@@ -28,6 +28,8 @@ const HomeScreen = () => {
   const { meetings } = useSelector((store) => store.meeting);
 
   const navigation = useNavigation();
+
+const isScreenFocused = useIsFocused()
 
   const dispatch = useDispatch();
 
@@ -94,7 +96,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchMeetings();
-  }, []);
+  }, [isScreenFocused]);
 
   const renderItem = ({ index, item }) => {
     return <HomeScreenMeetingCard meeting={item} index={index} />;

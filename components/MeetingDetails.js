@@ -11,12 +11,17 @@ import Spinner from "react-native-loading-spinner-overlay";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { TouchableOpacity } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useIsFocused } from "@react-navigation/native";
 import { BASE_URL } from "@env";
 import axios from "axios";
 import LoadingOverlay from "./ui/LoadingOverlay";
 import { useCallback } from "react";
+import { Alert } from "react-native";
+import {
+  deleteMeeting,
+  pushMeetingToTop,
+} from "../features/meeting/meetingSlice";
 
 const MeetingDetails = ({ route, navigation }) => {
   const [isVideoPreloading, setIsVideoPreloading] = useState(false);
@@ -25,6 +30,8 @@ const MeetingDetails = ({ route, navigation }) => {
 
   const { user } = useSelector((store) => store.user);
   const { token } = useSelector((store) => store.auth);
+
+  const dispatch = useDispatch();
 
   const meetingId = route.params.meetingId;
 
@@ -62,6 +69,46 @@ const MeetingDetails = ({ route, navigation }) => {
     return <LoadingOverlay message="Đang tải..." />;
   }
 
+  const showPushToTopDialog = () => {
+    return Alert.alert(
+      "Bạn có chắc không?",
+      "Nhấn đồng ý sẽ đẩy buổi chơi của bạn lên đầu trang tìm kiếm",
+      [
+        {
+          text: "Không",
+        },
+        {
+          text: "Có",
+          onPress: () => {
+            dispatch(pushMeetingToTop(meetingId));
+
+            navigation.goBack();
+          },
+        },
+      ]
+    );
+  };
+
+  const showDeleteDialog = () => {
+    return Alert.alert(
+      "Bạn có chắc không?",
+      "Nhấn đồng ý sẽ xóa buổi chơi này",
+      [
+        {
+          text: "Không",
+        },
+        {
+          text: "Có",
+          onPress: () => {
+            dispatch(deleteMeeting(meetingId));
+
+            navigation.goBack();
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollView style={styles.container}>
       {meetingData &&
@@ -73,12 +120,18 @@ const MeetingDetails = ({ route, navigation }) => {
               <Text style={styles.buttonText}>Chỉnh sửa</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => {}} style={[styles.button]}>
+            <TouchableOpacity
+              onPress={showPushToTopDialog}
+              style={[styles.button]}
+            >
               <Ionicons name="push-outline" color="white" size={18} />
               <Text style={styles.buttonText}>Đẩy lên đầu</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => {}} style={[styles.button]}>
+            <TouchableOpacity
+              onPress={showDeleteDialog}
+              style={[styles.button]}
+            >
               <AntDesign name="delete" color="white" size={18} />
               <Text style={styles.buttonText}>Xóa</Text>
             </TouchableOpacity>
@@ -109,7 +162,7 @@ const MeetingDetails = ({ route, navigation }) => {
             isLooping
             shouldPlay={screenIsFocused}
             rate={1}
-            volume={1}
+            volume={0.5}
             onLoadStart={() => setIsVideoPreloading(true)}
             onReadyForDisplay={() => setIsVideoPreloading(false)}
           />

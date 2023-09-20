@@ -75,6 +75,50 @@ export const fetchMeetingsBelongToUser = createAsyncThunk(
   }
 );
 
+export const pushMeetingToTop = createAsyncThunk(
+  "meeting/pushMeetingToTop",
+  async (data, thunkAPI) => {
+    console.log("Push meeting to top!");
+    const { auth } = thunkAPI.getState();
+    try {
+      const res = await axios.put(
+        `${BASE_URL}/api/meeting/push-ranking/${data}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+          },
+        }
+      );
+
+      return res.data;
+    } catch (error) {
+      console.log("error:", error.response);
+      return thunkAPI.rejectWithValue("Xin lỗi, đã xảy ra lỗi.");
+    }
+  }
+);
+
+export const deleteMeeting = createAsyncThunk(
+  "meeting/deleteMeeting",
+  async (data, thunkAPI) => {
+    console.log("Delete meeting");
+    const { auth } = thunkAPI.getState();
+    try {
+      const res = await axios.delete(`${BASE_URL}/api/meeting/${data}`, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      });
+
+      return res.data;
+    } catch (error) {
+      console.log("error:", error.response);
+      return thunkAPI.rejectWithValue("Xin lỗi, đã xảy ra lỗi.");
+    }
+  }
+);
+
 const meetingSlice = createSlice({
   name: "meeting",
   initialState,
@@ -138,6 +182,52 @@ const meetingSlice = createSlice({
         });
       })
       .addCase(updateMeeting.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+
+        Toast.show({
+          type: "error",
+          text1: "Xin lỗi, đã xảy ra lỗi",
+        });
+      })
+      .addCase(pushMeetingToTop.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(pushMeetingToTop.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.meetings = state.meetings.map((meeting) =>
+          meeting.id === action.payload.id ? action.payload : meeting
+        );
+
+        Toast.show({
+          type: "success",
+          text1: "Đẩy lên đầu trang thành công!",
+        });
+      })
+      .addCase(pushMeetingToTop.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+
+        Toast.show({
+          type: "error",
+          text1: "Xin lỗi, đã xảy ra lỗi",
+        });
+      })
+      .addCase(deleteMeeting.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteMeeting.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.meetings = state.meetings.filter(
+          (meeting) => meeting.id !== action.payload.id
+        );
+
+        Toast.show({
+          type: "success",
+          text1: "Xóa buổi chơi thành công!",
+        });
+      })
+      .addCase(deleteMeeting.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
 

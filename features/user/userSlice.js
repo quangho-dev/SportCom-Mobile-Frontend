@@ -13,7 +13,7 @@ const initialState = {
 export const getCurrentUser = createAsyncThunk(
   "user/getCurrentUser",
   async (token, thunkAPI) => {
-    console.log("tokennn:", token);
+    console.log("tokenn:", token);
     try {
       const resp = await axios(url, {
         headers: {
